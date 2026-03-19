@@ -64,7 +64,18 @@ export default class Grid {
     }
 
     placeBuilding (building, x, y) {
+        const cell = this.getCell(x, y);
 
+        if (!cell) {
+            return false;
+        }
+
+        if (!cell.isEmpty()) {
+            return false;
+        }
+
+        cell.setContent(building);
+        return true;
     }
 
     placeRoad (road, x, y) {
@@ -83,7 +94,33 @@ export default class Grid {
     }
 
     removeContent (x, y) {
+        const cell = this.getCell(x, y);
 
+        if (!cell) {
+            return false;
+        }
+
+        cell.removeContent();
+        return true;
+    }
+
+    hasAdjacentRoad(x, y) {
+        const directions = [
+            { dx: 0, dy: -1 },
+            { dx: 1, dy: 0 },
+            { dx: 0, dy: 1 },
+            { dx: -1, dy: 0 }
+        ];
+
+        for (const direction of directions) {
+            const neighbor = this.getCell(x + direction.dx, y + direction.dy);
+
+            if (neighbor && !neighbor.isEmpty() && neighbor.content.type === "road") {
+                return true;
+            }
+        }
+
+        return false;
     }
     
 }

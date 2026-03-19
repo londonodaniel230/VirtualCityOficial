@@ -1,6 +1,20 @@
 import City from "../../model/City.js";
 import Grid from "../../model/Grid.js";
 import Road from "../../model/Road.js";
+import House from "../../model/House.js";
+import Apartment from "../../model/Apartment.js";
+import Store from "../../model/Store.js";
+import ShoppingCenter from "../../model/ShoppingCenter.js";
+import Factory from "../../model/Factory.js";
+import Farm from "../../model/Farm.js";
+import PoliceStation from "../../model/PoliceStation.js";
+import FireStation from "../../model/FireStation.js";
+import Hospital from "../../model/Hospital.js";
+import PowerPlant from "../../model/PowerPlant.js";
+import WaterPlant from "../../model/WaterPlant.js";
+import Park from "../../model/Park.js";
+import BuildValidator from "../../business/BuildValidator.js";
+import BuildMenuView from "../views/BuildMenuView.js";
 import GridView from "../views/GridView.js";
 
 export default class GameController {
@@ -18,11 +32,14 @@ export default class GameController {
         this._infoBar = document.getElementById("info-bar");
         this._infoText = document.getElementById("info-text");
         this._buildRoadButton = document.getElementById("build-road-btn");
+       
         this._gridView = new GridView("map-grid");
-        
+        this._buildMenuView = new BuildMenuView("build-menu");
+
         this._city = null;
         this._selectedCell = null;
         this._currentMode = "select";
+        this._selectedBuildingType = null;
     }
 
     /*
@@ -39,9 +56,13 @@ export default class GameController {
 
         if (this._buildRoadButton) {
             this._buildRoadButton.addEventListener("click", () => {
-                this.setBuildRoadMode();
+                this.setMode("buildRoad", this._buildRoadButton);
             });
         }
+
+        this._buildMenuView.bindBuildingSelection((buildingType, button) => {
+            this.setMode("buildBuilding", button, buildingType);
+        });
     }
 
      /*
@@ -99,27 +120,12 @@ export default class GameController {
             return;
         }
 
+        if (this._currentMode === "buildBuilding") {
+            this.buildBuilding(x, y);
+            return;
+        }
+
         this.selectCell(x, y);
-    }
-
-    /*
-     * Activa el modo de construcción de vías.
-     */
-    setBuildRoadMode() {
-        if (this._currentMode === "buildRoad") {
-        this._currentMode = "select";
-        this._buildRoadButton.textContent = "Build Road";
-        this._buildRoadButton.classList.remove("btn-danger");
-        this._buildRoadButton.classList.add("btn-warning");
-        console.log("Select mode activated");
-        return;
-    }
-
-        this._currentMode = "buildRoad";
-        this._buildRoadButton.textContent = "Cancel Road";
-        this._buildRoadButton.classList.remove("btn-warning");
-        this._buildRoadButton.classList.add("btn-danger");
-        console.log("Build Road mode activated");
     }
 
     /*
@@ -168,6 +174,89 @@ export default class GameController {
         console.log(`Road built at (${x}, ${y})`);
     }
 
+    createBuildingByType(buildingType) {
+        switch (buildingType) {
+            case "house":
+                return new House(1);
+
+            case "apartment":
+                return new Apartment(2);
+
+            case "store":
+                return new Store(3);
+
+            case "shopping-center":
+                return new ShoppingCenter(4);
+
+            case "factory":
+                return new Factory(5);
+
+            case "farm":
+                return new Farm(6);
+
+            case "police-station":
+                return new PoliceStation(7);
+
+            case "fire-station":
+                return new FireStation(8);
+
+            case "hospital":
+                return new Hospital(9);
+
+            case "power-plant":
+                return new PowerPlant(10);
+
+            case "water-plant":
+                return new WaterPlant(11);
+
+            case "park":
+                return new Park(12);
+
+            default:
+                return null;
+        }
+    }
+
+    buildBuilding(x, y) {
+        const grid = this._city.grid;
+        const resources = this._city.resources;
+
+        const building = this.createBuildingByType(this._selectedBuildingType);
+
+        if (!building) {
+            return;
+        }
+
+        const validation = BuildValidator.canBuildBuilding(
+            grid,
+            resources,
+            building,
+            x,
+            y
+        );
+
+        if (!validation.valid) {
+            alert(validation.message);
+            return;
+        }
+
+        const success = grid.placeBuilding(building, x, y);
+
+        if (!success) {
+            return;
+        }
+
+        resources.spendMoney(building.constructionCost);
+
+        this._selectedCell = { x, y };
+
+        this.renderGrid();
+        this._gridView.highlightSelectedCell(x, y);
+        this.showCityInfo();
+
+        console.log(`${building.name} built at (${x}, ${y})`);
+    }
+
     /*
      * Muestra en la barra superior la información básica de la ciudad
      * como nombre, alcalde, región, tamaño del mapa y dinero.
@@ -187,5 +276,65 @@ export default class GameController {
         this._gridView.highlightSelectedCell(x, y);
 
         console.log("Selected cell:", this._selectedCell);
+    }
+
+    setMode(mode, button, extraData = null) {
+
+        const isSameRoadMode =
+            mode === "buildRoad" && this._currentMode === "buildRoad";
+
+        const isSameBuildingMode =
+            mode === "buildBuilding" &&
+            this._currentMode === "buildBuilding" &&
+            this._selectedBuildingType === extraData;
+
+        // Si se pulsa el mismo botón otra vez, cancelar
+        if (isSameRoadMode || isSameBuildingMode) {
+            this._currentMode = "select";
+            this._selectedBuildingType = null;
+
+            this.resetButtons();
+
+            console.log("Select mode activated");
+            return;
+        }
+
+        // Activar nuevo modo
+        this._currentMode = mode;
+
+        if (mode === "buildBuilding") {
+            this._selectedBuildingType = extraData;
+        } else {
+            this._selectedBuildingType = null;
+        }
+
+        this.resetButtons();
+
+        button.textContent = "Cancel";
+        button.classList.remove("btn-warning", "btn-light");
+        button.classList.add("btn-danger");
+
+        console.log(`Mode activated: ${mode}`, extraData);
+    }
+
+    resetButtons() {
+        const allButtons = document.querySelectorAll("#build-road-btn, #build-menu button");
+
+        allButtons.forEach((btn) => {
+            btn.classList.remove("btn-danger", "btn-warning");
+            btn.classList.add("btn-light");
+
+            if (btn.dataset.building) {
+                if (btn.dataset.label) {
+                    btn.textContent = btn.dataset.label;
+                } else {
+                    btn.textContent = btn.dataset.building;
+                }
+            } else if (btn.id === "build-road-btn") {
+                btn.textContent = "Build Road";
+                btn.classList.remove("btn-light");
+                btn.classList.add("btn-warning");
+            }
+        });
     }
 }

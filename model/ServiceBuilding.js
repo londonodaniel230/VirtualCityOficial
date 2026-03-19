@@ -1,37 +1,49 @@
 import Building from "./Building.js";
 
 export default class ServiceBuilding extends Building {
+    constructor(
+        id,
+        name,
+        type,
+        constructionCost,
+        maintenanceCost,
+        electricityConsumption,
+        waterConsumption,
+        radius,
+        happinessBonus
+    ) {
+        super(
+            id,
+            name,
+            type,
+            "service",
+            constructionCost,
+            maintenanceCost,
+            electricityConsumption,
+            waterConsumption
+        );
 
-    constructor (id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption, radius, happinessBonus) {
-        super(id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption);
         this._radius = radius;
         this._happinessBonus = happinessBonus;
     }
 
-    // ======= GETTERS =======
-
-    get radius () { 
-        return this._radius; 
+    get radius() {
+        return this._radius;
     }
 
-    get happinessBonus () { 
-        return this._happinessBonus; 
+    get happinessBonus() {
+        return this._happinessBonus;
     }
 
-    // ======= SETTERS =======
-
-    set radius (newRadius) { 
-        this._radius = newRadius; 
+    set radius(newRadius) {
+        this._radius = newRadius;
     }
 
-    set happinessBonus (newHappinessBonus) { 
-        this._happinessBonus = newHappinessBonus; 
+    set happinessBonus(newHappinessBonus) {
+        this._happinessBonus = newHappinessBonus;
     }
 
-    // ======= METHODS =======
-
-    applyServiceEffect () {
+    applyServiceEffect() {
 
     }
-
 }

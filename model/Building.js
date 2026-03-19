@@ -1,7 +1,10 @@
 export default class Building {
 
-    constructor (id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption) {
+    constructor (id, name, type, category, constructionCost, maintenanceCost, electricityConsumption, waterConsumption) {
         this._id = id;
+        this._name = name;
+        this._type = type;
+        this._category = category;
         this._constructionCost = constructionCost;
         this._maintenanceCost = maintenanceCost;
         this._electricityConsumption = electricityConsumption;
@@ -12,6 +15,18 @@ export default class Building {
 
     get id () { 
         return this._id; 
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get category() {
+        return this._category;
     }
 
     get constructionCost () { 
@@ -34,6 +49,18 @@ export default class Building {
 
     set id (newId) { 
         this._id = newId; 
+    }
+
+    set name(newName) {
+        this._name = newName;
+    }
+
+    set type(newType) {
+        this._type = newType;
+    }
+
+    set category(newCategory) {
+        this._category = newCategory;
     }
 
     set constructionCost (newConstructionCost) { 

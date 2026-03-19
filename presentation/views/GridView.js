@@ -29,9 +29,35 @@ export default class GridView {
                 cellElement.dataset.x = cell.x;
                 cellElement.dataset.y = cell.y;
 
-                if (!cell.isEmpty() && cell.content.type === "road") {
-                    cellElement.classList.add("road-cell");
-                }
+                if (!cell.isEmpty()) {
+    if (cell.content.type === "road") {
+        cellElement.classList.add("road-cell");
+    } else if (cell.content.type === "house") {
+        cellElement.classList.add("house-cell");
+    } else if (cell.content.type === "apartment") {
+        cellElement.classList.add("apartment-cell");
+    } else if (cell.content.type === "store") {
+        cellElement.classList.add("store-cell");
+    } else if (cell.content.type === "shopping-center") {
+        cellElement.classList.add("shopping-center-cell");
+    } else if (cell.content.type === "factory") {
+        cellElement.classList.add("factory-cell");
+    } else if (cell.content.type === "farm") {
+        cellElement.classList.add("farm-cell");
+    } else if (cell.content.type === "police-station") {
+        cellElement.classList.add("police-station-cell");
+    } else if (cell.content.type === "fire-station") {
+        cellElement.classList.add("fire-station-cell");
+    } else if (cell.content.type === "hospital") {
+        cellElement.classList.add("hospital-cell");
+    } else if (cell.content.type === "power-plant") {
+        cellElement.classList.add("power-plant-cell");
+    } else if (cell.content.type === "water-plant") {
+        cellElement.classList.add("water-plant-cell");
+    } else if (cell.content.type === "park") {
+        cellElement.classList.add("park-cell");
+    }
+}
 
                 cellElement.addEventListener("click", () => {
                     onCellClick(cell.x, cell.y);

@@ -1,44 +1,56 @@
 import Building from "./Building.js";
 
 export default class ResidentialBuilding extends Building {
+    constructor(
+        id,
+        name,
+        type,
+        constructionCost,
+        maintenanceCost,
+        electricityConsumption,
+        waterConsumption,
+        capacity
+    ) {
+        super(
+            id,
+            name,
+            type,
+            "residential",
+            constructionCost,
+            maintenanceCost,
+            electricityConsumption,
+            waterConsumption
+        );
 
-    constructor (id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption, capacity) {
-        super(id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption);
         this._capacity = capacity;
         this._residents = [];
     }
 
-    // ======= GETTERS =======
-    get capacity () { 
-        return this._capacity; 
+    get capacity() {
+        return this._capacity;
     }
 
-    get residents () { 
-        return this._residents; 
+    get residents() {
+        return this._residents;
     }
 
-    // ======= SETTERS =======
-
-    set capacity (newCapacity) { 
-        this._capacity = newCapacity; 
+    set capacity(newCapacity) {
+        this._capacity = newCapacity;
     }
 
-    set residents (newResidents) { 
-        this._residents = newResidents; 
+    set residents(newResidents) {
+        this._residents = newResidents;
     }
 
-    // ======= METHODS =======
-    
-    addResident (citizen) {
+    addResident(citizen) {
 
     }
 
-    removeResident (citizenId) {
+    removeResident(citizenId) {
 
     }
 
-    hasAvailableSpace () {
-
+    hasAvailableSpace() {
+        return this._residents.length < this._capacity;
     }
-
 }

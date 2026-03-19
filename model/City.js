@@ -14,7 +14,7 @@ export default class City {
         this._currentTurn = 0;
         this._score = 0;
         this._grid = grid;
-        this._resources = new Resources(1000);
+        this._resources = new Resources(100000);
     }
 
     // ======= GETTERS =======

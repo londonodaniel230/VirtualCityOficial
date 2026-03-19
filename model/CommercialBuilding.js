@@ -1,44 +1,66 @@
 import Building from "./Building.js";
 
 export default class CommercialBuilding extends Building {
+    constructor(
+        id,
+        name,
+        type,
+        constructionCost,
+        maintenanceCost,
+        electricityConsumption,
+        waterConsumption,
+        jobs,
+        incomePerTurn
+    ) {
+        super(
+            id,
+            name,
+            type,
+            "commercial",
+            constructionCost,
+            maintenanceCost,
+            electricityConsumption,
+            waterConsumption
+        );
 
-    constructor (id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption, jobs) {
-        super(id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption);
         this._jobs = jobs;
         this._workers = [];
-    }
-    // ======= GETTERS =======
-
-    get jobs () { 
-        return this._jobs; 
+        this._incomePerTurn = incomePerTurn;
     }
 
-    get workers () { 
-        return this._workers; 
+    get jobs() {
+        return this._jobs;
     }
 
-    // ======= SETTERS =======
-
-    set jobs (newJobs) { 
-        this._jobs = newJobs; 
+    get workers() {
+        return this._workers;
     }
 
-    set workers (newWorkers) { 
-        this._workers = newWorkers; 
+    get incomePerTurn() {
+        return this._incomePerTurn;
     }
 
-    // ======= METHODS =======
-
-    addWorker (citizen) {
-
+    set jobs(newJobs) {
+        this._jobs = newJobs;
     }
 
-    removeWorker (citizenId) {
-
+    set workers(newWorkers) {
+        this._workers = newWorkers;
     }
 
-    hasJobVacancy () {
+    set incomePerTurn(newIncomePerTurn) {
+        this._incomePerTurn = newIncomePerTurn;
+    }
+
+    addWorker(citizen) {
 
     }
 
+    removeWorker(citizenId) {
+
+    }
+
+    hasJobVacancy() {
+        return this._workers.length < this._jobs;
+    }
 }

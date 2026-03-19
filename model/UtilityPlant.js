@@ -1,28 +1,39 @@
 import Building from "./Building.js";
 
 export default class UtilityPlant extends Building {
+    constructor(
+        id,
+        name,
+        type,
+        constructionCost,
+        maintenanceCost,
+        electricityConsumption,
+        waterConsumption,
+        productionAmount
+    ) {
+        super(
+            id,
+            name,
+            type,
+            "utility",
+            constructionCost,
+            maintenanceCost,
+            electricityConsumption,
+            waterConsumption
+        );
 
-    constructor (id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption, productionAmount) {
-        super(id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption);
         this._productionAmount = productionAmount;
     }
 
-    // ======= GETTERS =======
-
-    get productionAmount () { 
-        return this._productionAmount; 
+    get productionAmount() {
+        return this._productionAmount;
     }
 
-    // ======= SETTERS =======
-
-    set productionAmount (newProductionAmount) { 
-        this._productionAmount = newProductionAmount; 
+    set productionAmount(newProductionAmount) {
+        this._productionAmount = newProductionAmount;
     }
 
-    // ======= METHODS =======
-
-    produceUtility () {
+    produceUtility() {
 
     }
-
 }

@@ -1,58 +1,70 @@
 import Building from "./Building.js";
 
 export default class IndustrialBuilding extends Building {
+    constructor(
+        id,
+        name,
+        type,
+        constructionCost,
+        maintenanceCost,
+        electricityConsumption,
+        waterConsumption,
+        jobs,
+        production
+    ) {
+        super(
+            id,
+            name,
+            type,
+            "industrial",
+            constructionCost,
+            maintenanceCost,
+            electricityConsumption,
+            waterConsumption
+        );
 
-    constructor (id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption, jobs, production) {
-        super(id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption);
         this._jobs = jobs;
         this._workers = [];
         this._production = production;
     }
 
-    // ======= GETTERS =======
-
-    get jobs () { 
-        return this._jobs; 
+    get jobs() {
+        return this._jobs;
     }
 
-    get workers () { 
-        return this._workers; 
+    get workers() {
+        return this._workers;
     }
 
-    get production () { 
-        return this._production; 
+    get production() {
+        return this._production;
     }
 
-    // ======= SETTERS =======
-
-    set jobs (newJobs) { 
-        this._jobs = newJobs; 
+    set jobs(newJobs) {
+        this._jobs = newJobs;
     }
 
-    set workers (newWorkers) { 
-        this._workers = newWorkers; 
+    set workers(newWorkers) {
+        this._workers = newWorkers;
     }
 
-    set production (newProduction) { 
-        this._production = newProduction; 
+    set production(newProduction) {
+        this._production = newProduction;
     }
 
-    // ======= METHODS =======
-
-    addWorker (citizen) {
+    addWorker(citizen) {
 
     }
 
-    removeWorker (citizenId) {
+    removeWorker(citizenId) {
 
     }
 
-    hasJobVacancy () {
-
+    hasJobVacancy() {
+        return this._workers.length < this._jobs;
     }
 
-    produceResources () {
+    produceResources() {
 
     }
-
 }

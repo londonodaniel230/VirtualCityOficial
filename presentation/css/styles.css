@@ -138,3 +138,58 @@ body {
         font-size: 0.8rem;
     }
 }
+
+#build-menu {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.house-cell {
+    background-color: #f4e4b8;
+}
+
+.apartment-cell {
+    background-color: #d7ccc8;
+}
+
+.store-cell {
+    background-color: #b2dfdb;
+}
+
+.shopping-center-cell {
+    background-color: #80cbc4;
+}
+
+.factory-cell {
+    background-color: #b0bec5;
+}
+
+.farm-cell {
+    background-color: #aed581;
+}
+
+.police-station-cell {
+    background-color: #90caf9;
+}
+
+.fire-station-cell {
+    background-color: #ef9a9a;
+}
+
+.hospital-cell {
+    background-color: #ce93d8;
+}
+
+.power-plant-cell {
+    background-color: #ffe082;
+}
+
+.water-plant-cell {
+    background-color: #81d4fa;
+}
+
+.park-cell {
+    background-color: #81c784;
+}

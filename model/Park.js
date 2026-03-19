@@ -1,28 +1,30 @@
 import Building from "./Building.js";
 
 export default class Park extends Building {
+    constructor(id) {
+        super(
+            id,
+            "Park",
+            "park",
+            "recreational",
+            1500,
+            0,
+            0,
+            0
+        );
 
-    constructor (id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption, happinessBonus) {
-        super(id, constructionCost, maintenanceCost, electricityConsumption, waterConsumption);
-        this._happinessBonus = happinessBonus;
+        this._happinessBonus = 5;
     }
 
-    // ======= GETTERS =======
-
-    get happinessBonus () { 
-        return this._happinessBonus; 
+    get happinessBonus() {
+        return this._happinessBonus;
     }
 
-    // ======= SETTERS =======
-
-    set happinessBonus (newHappinessBonus) { 
-        this._happinessBonus = newHappinessBonus; 
+    set happinessBonus(newHappinessBonus) {
+        this._happinessBonus = newHappinessBonus;
     }
 
-    // ======= METHODS =======
-
-    applyHappinessEffect () {
+    applyHappinessEffect() {
 
     }
-
 }
