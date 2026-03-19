@@ -97,11 +97,17 @@ export default class Grid {
         const cell = this.getCell(x, y);
 
         if (!cell) {
-            return false;
+            return null;
         }
 
+        if (cell.isEmpty()) {
+            return null;
+        }
+
+        const removedContent = cell.content;
         cell.removeContent();
-        return true;
+
+        return removedContent;
     }
 
     hasAdjacentRoad(x, y) {

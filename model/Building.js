@@ -85,4 +85,8 @@ export default class Building {
 
     }
 
+    getSellValue() {
+        return Math.floor(this._constructionCost * 0.5);
+    }
+
 }

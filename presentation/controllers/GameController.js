@@ -16,6 +16,7 @@ import Park from "../../model/Park.js";
 import BuildValidator from "../../business/BuildValidator.js";
 import BuildMenuView from "../views/BuildMenuView.js";
 import GridView from "../views/GridView.js";
+import InfoPanelView from "../views/InfoPanelView.js";
 
 export default class GameController {
 
@@ -32,7 +33,10 @@ export default class GameController {
         this._infoBar = document.getElementById("info-bar");
         this._infoText = document.getElementById("info-text");
         this._buildRoadButton = document.getElementById("build-road-btn");
-       
+        this._demolishButton = document.getElementById("demolish-btn");
+        this._infoPanel = document.getElementById("info-panel");
+        
+        this._infoPanelView = new InfoPanelView("info-panel");
         this._gridView = new GridView("map-grid");
         this._buildMenuView = new BuildMenuView("build-menu");
 
@@ -49,6 +53,7 @@ export default class GameController {
      */
 
     init() {
+
         this._form.addEventListener("submit", (event) => {
             event.preventDefault();
             this.createCity();
@@ -57,6 +62,12 @@ export default class GameController {
         if (this._buildRoadButton) {
             this._buildRoadButton.addEventListener("click", () => {
                 this.setMode("buildRoad", this._buildRoadButton);
+            });
+        }
+
+        if (this._demolishButton) {
+            this._demolishButton.addEventListener("click", () => {
+                this.setMode("demolish", this._demolishButton);
             });
         }
 
@@ -98,6 +109,7 @@ export default class GameController {
 
         this._mapSection.classList.remove("d-none");
         this._infoBar.classList.remove("d-none");
+        this._infoPanel.classList.remove("d-none");
     }
 
     /*
@@ -125,7 +137,13 @@ export default class GameController {
             return;
         }
 
+        if (this._currentMode == "demolish") {
+            this.demolishSelectedCell(x, y);
+            return;
+        }
+
         this.selectCell(x, y);
+        this.showBuildingInfo(x, y);
     }
 
     /*
@@ -288,8 +306,11 @@ export default class GameController {
             this._currentMode === "buildBuilding" &&
             this._selectedBuildingType === extraData;
 
+        const isSameDemolishMode = 
+            mode === "demolish" && this._currentMode === "demolish";
+
         // Si se pulsa el mismo botón otra vez, cancelar
-        if (isSameRoadMode || isSameBuildingMode) {
+        if (isSameRoadMode || isSameBuildingMode || isSameDemolishMode) {
             this._currentMode = "select";
             this._selectedBuildingType = null;
 
@@ -318,7 +339,7 @@ export default class GameController {
     }
 
     resetButtons() {
-        const allButtons = document.querySelectorAll("#build-road-btn, #build-menu button");
+        const allButtons = document.querySelectorAll("#build-road-btn, #build-menu button, #demolish-btn");
 
         allButtons.forEach((btn) => {
             btn.classList.remove("btn-danger", "btn-warning");
@@ -334,7 +355,64 @@ export default class GameController {
                 btn.textContent = "Build Road";
                 btn.classList.remove("btn-light");
                 btn.classList.add("btn-warning");
+            } else if (btn.id === "demolish-btn"){
+                btn.textContent = "Demolish";
             }
         });
+    }
+
+    showBuildingInfo(x, y) {
+        const grid = this._city.grid;
+        const cell = grid.getCell(x, y);
+
+        if (!cell || cell.isEmpty()) {
+            this._infoPanelView.showMessage("Empty cell.");
+            return;
+        }
+
+        const content = cell.content;
+
+        if (content.type === "road") {
+            this._infoPanelView.showRoadInfo(content);
+            return;
+        }
+
+        this._infoPanelView.showBuildingInfo(content);
+    }
+
+    demolishSelectedCell(x, y) {
+        const grid = this._city.grid;
+        const resources = this._city.resources;
+
+        const cell = grid.getCell(x, y);
+
+        if (!cell || cell.isEmpty()) {
+            alert("There is nothing to demolish here.");
+            return;
+        }
+
+        const removedContent = grid.removeContent(x, y);
+
+        if (!removedContent) {
+            return;
+        }
+
+        let refund = 0;
+
+        if (removedContent.type === "road") {
+            refund = Math.floor(removedContent.cost * 0.5);
+        } else if (typeof removedContent.getSellValue === "function") {
+            refund = removedContent.getSellValue();
+        }
+
+        resources.addMoney(refund);
+
+        this._selectedCell = { x, y };
+
+        this.renderGrid();
+        this.showCityInfo();
+        this._infoPanelView.showMessage(`Demolished successfully. Refund: $${refund}`);
+
+        console.log(`Content demolished at (${x}, ${y}). Refund: $${refund}`);
     }
 }
