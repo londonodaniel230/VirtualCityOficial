@@ -13,6 +13,7 @@ export default class Resources {
         this._electricityBalance = 0;
         this._waterBalance = 0;
         this._foodBalance = 0;
+        this._moneyBalance = 0;
     }
 
     get money() {
@@ -41,6 +42,10 @@ export default class Resources {
 
     get foodBalance() {
         return this._foodBalance;
+    }
+
+    get moneyBalance() {
+        return this._moneyBalance;
     }
 
     set money(newMoney) {
@@ -89,6 +94,7 @@ export default class Resources {
     }
 
     calculateBalances(buildings) {
+        let producedMoney = 0;
         let producedElectricity = 0;
         let producedWater = 0;
         let producedFood = 0;
@@ -104,6 +110,10 @@ export default class Resources {
             consumedElectricity += building.electricityConsumption || 0;
             consumedWater += building.waterConsumption || 0;
 
+            if (typeof building.getMoneyProduction === "function") {
+                producedMoney += building.getMoneyProduction();
+            }
+
             if (typeof building.getElectricityProduction === "function") {
                 producedElectricity += building.getElectricityProduction();
             }
@@ -117,12 +127,108 @@ export default class Resources {
             }
         }
 
+        this._moneyBalance = producedMoney;
+        this._electricityBalance = producedElectricity - consumedElectricity;
+        this._waterBalance = producedWater - consumedWater;
+        this._foodBalance = producedFood;
+    }
+
+    applyTurn(buildings) {
+        let totalMaintenance = 0;
+
+        let producedMoney = 0;
+        let producedElectricity = 0;
+        let producedWater = 0;
+        let producedFood = 0;
+
+        let consumedElectricity = 0;
+        let consumedWater = 0;
+
+        for (const building of buildings) {
+            if (!building) {
+                continue;
+            }
+
+            totalMaintenance += building.maintenanceCost || 0;
+            consumedElectricity += building.electricityConsumption || 0;
+            consumedWater += building.waterConsumption || 0;
+
+            if (typeof building.getElectricityProduction === "function") {
+                producedElectricity += building.getElectricityProduction();
+            }
+
+            if (typeof building.getFoodProduction === "function") {
+                producedFood += building.getFoodProduction();
+            }
+        }
+
+        const projectedElectricity =
+            this._electricity + producedElectricity - consumedElectricity;
+
+        const hasElectricity = projectedElectricity >= 0;
+
+        for (const building of buildings) {
+            if (!building) {
+                continue;
+            }
+
+            if (
+                (building.type === "store" || building.type === "shopping-center") &&
+                hasElectricity &&
+                typeof building.getMoneyProduction === "function"
+            ) {
+                producedMoney += building.getMoneyProduction();
+            }
+
+            if (
+                building.type === "factory" &&
+                hasElectricity &&
+                typeof building.getMoneyProduction === "function"
+            ) {
+                producedMoney += building.getMoneyProduction();
+            }
+
+            if (
+                building.type === "water-plant" &&
+                hasElectricity &&
+                typeof building.getWaterProduction === "function"
+            ) {
+                producedWater += building.getWaterProduction();
+            }
+        }
+
+        this._money += producedMoney;
+        this.spendMoney(totalMaintenance);
+
+        this._electricity += producedElectricity - consumedElectricity;
+        this._water += producedWater - consumedWater;
+        this._food += producedFood;
+
+        if (this._electricity < 0) {
+            this._electricity = 0;
+        }
+
+        if (this._water < 0) {
+            this._water = 0;
+        }
+
+        if (this._food < 0) {
+            this._food = 0;
+        }
+
+        this._moneyBalance = producedMoney - totalMaintenance;
         this._electricityBalance = producedElectricity - consumedElectricity;
         this._waterBalance = producedWater - consumedWater;
         this._foodBalance = producedFood;
 
-        this._electricity = this._electricityBalance;
-        this._water = this._waterBalance;
-        this._food = this._foodBalance;
+        return {
+            maintenancePaid: totalMaintenance,
+            moneyProduced: producedMoney,
+            electricityProduced: producedElectricity,
+            electricityConsumed: consumedElectricity,
+            waterProduced: producedWater,
+            waterConsumed: consumedWater,
+            foodProduced: producedFood
+        };
     }
-}
+    }

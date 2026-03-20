@@ -14,4 +14,8 @@ export default class Store extends CommercialBuilding {
             500
         );
     }
+
+    getMoneyProduction() {
+        return 500;
+    }
 }

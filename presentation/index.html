@@ -37,6 +37,11 @@
                             </div>
 
                             <div class="col-md-6">
+                                <label for="turnDuration" class="form-label">Turn Duration (seconds)</label>
+                                <input type="number" class="form-control" id="turnDuration" min="1" value="5" required>
+                            </div>
+
+                            <div class="col-md-6">
                                 <label for="mapSize" class="form-label">Map Size</label>
                                 <select class="form-select" id="mapSize" required>
                                     <option value="">Select size</option>
@@ -75,6 +80,12 @@
 
                     <div class="info-controls">
                         <span id="info-text">City information</span>
+
+                        <span id="turn-timer-text">Next Turn In: 60s</span>
+
+                        <button id="pause-turn-btn" type="button" class="btn btn-light btn-sm">
+                            Pause Turns
+                        </button>
 
                         <button id="build-road-btn" type="button" class="btn btn-warning btn-sm">
                             Build Road

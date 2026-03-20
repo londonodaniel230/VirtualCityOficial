@@ -101,4 +101,8 @@ export default class Building {
         return 0;
     }
 
+    getMoneyProduction() {
+        return 0;
+    }
+
 }

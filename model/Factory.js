@@ -14,4 +14,8 @@ export default class Factory extends IndustrialBuilding {
             800
         );
     }
+
+    getMoneyProduction() {
+        return 800;
+    }
 }

@@ -17,4 +17,8 @@ export default class WaterPlant extends UtilityPlant {
     getWaterProduction() {
         return this.productionAmount;
     }
+
+    getWaterProduction() {
+        return 150;
+    }
 }

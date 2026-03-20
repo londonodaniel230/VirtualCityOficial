@@ -14,4 +14,8 @@ export default class ShoppingCenter extends CommercialBuilding {
             2000
         );
     }
+
+    getMoneyProduction() {
+        return 2000;
+    }
 }

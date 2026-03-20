@@ -16,6 +16,6 @@ export default class Farm extends IndustrialBuilding {
     }
 
     getFoodProduction() {
-        return this.production;
+        return 50;
     }
 }

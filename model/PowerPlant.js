@@ -17,4 +17,8 @@ export default class PowerPlant extends UtilityPlant {
     getElectricityProduction() {
         return this.productionAmount;
     }
+
+    getElectricityProduction() {
+        return 200;
+    }
 }

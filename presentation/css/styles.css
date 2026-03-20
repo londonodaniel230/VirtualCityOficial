@@ -279,3 +279,15 @@ body {
         padding-bottom: 180px;
     }
 }
+
+#turn-timer-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+@media (max-width: 576px) {
+    #turn-timer-text {
+        width: 100%;
+        font-size: 0.8rem;
+    }
+}

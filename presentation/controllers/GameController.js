@@ -18,6 +18,7 @@ import BuildMenuView from "../views/BuildMenuView.js";
 import GridView from "../views/GridView.js";
 import InfoPanelView from "../views/InfoPanelView.js";
 import ResourcePanelView from "../views/ResourcePanelView.js";
+import TurnSystem from "../../business/TurnSystem.js";
 
 export default class GameController {
 
@@ -37,6 +38,8 @@ export default class GameController {
         this._demolishButton = document.getElementById("demolish-btn");
         this._infoPanel = document.getElementById("info-panel");
         this._resourcePanel = document.getElementById("resource-panel");
+        this._pauseTurnButton = document.getElementById("pause-turn-btn");
+        this._turnTimerText = document.getElementById("turn-timer-text");
 
         this._infoPanelView = new InfoPanelView("info-panel");
         this._gridView = new GridView("map-grid");
@@ -47,6 +50,16 @@ export default class GameController {
         this._selectedCell = null;
         this._currentMode = "select";
         this._selectedBuildingType = null;
+
+        this._turnSystem = new TurnSystem(
+            () => {
+                this.executeTurn();
+            },
+            (remainingSeconds) => {
+                this.updateTurnTimer(remainingSeconds);
+            },
+            5000
+        );
     }
 
     /*
@@ -74,6 +87,12 @@ export default class GameController {
             });
         }
 
+        if (this._pauseTurnButton) {
+            this._pauseTurnButton.addEventListener("click", () => {
+                this.toggleTurnSystem();
+            });
+        }
+
         this._buildMenuView.bindBuildingSelection((buildingType, button) => {
             this.setMode("buildBuilding", button, buildingType);
         });
@@ -90,6 +109,9 @@ export default class GameController {
         const region = document.getElementById("region").value.trim();
         const size = parseInt(document.getElementById("mapSize").value);
 
+        const turnDurationInput = parseInt(document.getElementById("turnDuration").value);
+        const turnDuration = isNaN(turnDurationInput) || turnDurationInput < 1 ? 5 : turnDurationInput;
+
         const grid = new Grid(size, size);
         grid.initializeGrid();
 
@@ -104,20 +126,27 @@ export default class GameController {
             grid
         );
 
+        this._city.calculateBaseHappiness();
+        this._city.updateAverageHappiness();
+
+        this._turnSystem.stop();
+        this._turnSystem.intervalMs = turnDuration * 1000;
+        this._turnSystem.reset();
+
         this._setupSection.classList.add("d-none");
 
         this.showCityInfo();
-
         this.renderGrid();
-
-        this._city.updateResourceBalances();
-
-        this.updateResourcePanel();
 
         this._mapSection.classList.remove("d-none");
         this._infoBar.classList.remove("d-none");
         this._infoPanel.classList.remove("d-none");
         this._resourcePanel.classList.remove("d-none");
+
+        this.updateResourcePanel();
+
+        this._turnSystem.start();
+        this.updateTurnTimer(Math.ceil(this._turnSystem.intervalMs / 1000));
     }
 
     /*
@@ -282,6 +311,8 @@ export default class GameController {
         this.renderGrid();
         this._gridView.highlightSelectedCell(x, y);
         this.showCityInfo();
+        this._city.updateResourceBalances();
+        this.updateResourcePanel();
 
         console.log(`${building.name} built at (${x}, ${y})`);
     }
@@ -292,7 +323,7 @@ export default class GameController {
      */
     showCityInfo() {
         this._infoText.textContent =
-        `City: ${this._city.name} | Mayor: ${this._city.mayor} | Region: ${this._city.region} | Size: ${this._city.mapWidth} x ${this._city.mapHeight} | Money: $${this._city.resources.money}`;
+        `City: ${this._city.name} | Mayor: ${this._city.mayor} | Region: ${this._city.region} | Size: ${this._city.mapWidth} x ${this._city.mapHeight} | Turn: ${this._city.currentTurn} | Score: ${this._city.score} `;
     }
 
     /*
@@ -422,12 +453,60 @@ export default class GameController {
 
         this.renderGrid();
         this.showCityInfo();
+        this._city.updateResourceBalances();
+        this.updateResourcePanel();
         this._infoPanelView.showMessage(`Demolished successfully. Refund: $${refund}`);
 
         console.log(`Content demolished at (${x}, ${y}). Refund: $${refund}`);
     }
 
     updateResourcePanel() {
-        this._resourcePanelView.render(this._city.resources);
+        this._resourcePanelView.render(this._city.resources, this._city);
+    }
+
+    executeTurn() {
+        if (!this._city) {
+            return;
+        }
+
+        const turnResult = this._city.advanceTurn();
+
+        this.showCityInfo();
+        this.updateResourcePanel();
+
+        this._infoPanelView.showMessage(
+            `Turn ${turnResult.currentTurn} completed.
+            Maintenance: $${turnResult.maintenancePaid}
+            Money Produced: $${turnResult.moneyProduced}
+            Electricity: +${turnResult.electricityProduced} / -${turnResult.electricityConsumed}
+            Water: +${turnResult.waterProduced} / -${turnResult.waterConsumed}
+            Food Produced: +${turnResult.foodProduced}`
+        );
+
+        console.log(`Turn ${turnResult.currentTurn} executed`);
+    }
+
+    toggleTurnSystem() {
+        if (this._turnSystem.isRunning) {
+            this._turnSystem.stop();
+
+            if (this._pauseTurnButton) {
+                this._pauseTurnButton.textContent = "Resume Turns";
+            }
+
+            return;
+        }
+
+        this._turnSystem.start();
+
+        if (this._pauseTurnButton) {
+            this._pauseTurnButton.textContent = "Pause Turns";
+        }
+    }
+
+    updateTurnTimer(remainingSeconds) {
+        if (this._turnTimerText) {
+            this._turnTimerText.textContent = `Next Turn In: ${remainingSeconds}s`;
+        }
     }
 }
