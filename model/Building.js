@@ -89,4 +89,16 @@ export default class Building {
         return Math.floor(this._constructionCost * 0.5);
     }
 
+    getElectricityProduction() {
+        return 0;
+    }
+
+    getWaterProduction() {
+        return 0;
+    }
+
+    getFoodProduction() {
+        return 0;
+    }
+
 }

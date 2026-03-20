@@ -122,5 +122,26 @@ export default class City {
     calculateScore () {
 
     }
+
+    getAllBuildings() {
+        const buildings = [];
+
+        for (let row = 0; row < this._grid.cells.length; row++) {
+            for (let col = 0; col < this._grid.cells[row].length; col++) {
+                const cell = this._grid.cells[row][col];
+
+                if (!cell.isEmpty() && cell.content.type !== "road") {
+                    buildings.push(cell.content);
+                }
+            }
+        }
+
+        return buildings;
+    }
+
+    updateResourceBalances() {
+        const buildings = this.getAllBuildings();
+        this._resources.calculateBalances(buildings);
+    }
     
 }

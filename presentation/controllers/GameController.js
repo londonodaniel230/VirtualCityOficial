@@ -17,6 +17,7 @@ import BuildValidator from "../../business/BuildValidator.js";
 import BuildMenuView from "../views/BuildMenuView.js";
 import GridView from "../views/GridView.js";
 import InfoPanelView from "../views/InfoPanelView.js";
+import ResourcePanelView from "../views/ResourcePanelView.js";
 
 export default class GameController {
 
@@ -35,10 +36,12 @@ export default class GameController {
         this._buildRoadButton = document.getElementById("build-road-btn");
         this._demolishButton = document.getElementById("demolish-btn");
         this._infoPanel = document.getElementById("info-panel");
-        
+        this._resourcePanel = document.getElementById("resource-panel");
+
         this._infoPanelView = new InfoPanelView("info-panel");
         this._gridView = new GridView("map-grid");
         this._buildMenuView = new BuildMenuView("build-menu");
+        this._resourcePanelView = new ResourcePanelView("resource-panel");
 
         this._city = null;
         this._selectedCell = null;
@@ -107,9 +110,14 @@ export default class GameController {
 
         this.renderGrid();
 
+        this._city.updateResourceBalances();
+
+        this.updateResourcePanel();
+
         this._mapSection.classList.remove("d-none");
         this._infoBar.classList.remove("d-none");
         this._infoPanel.classList.remove("d-none");
+        this._resourcePanel.classList.remove("d-none");
     }
 
     /*
@@ -188,6 +196,9 @@ export default class GameController {
         this._gridView.highlightSelectedCell(x, y);
 
         this.showCityInfo();
+
+        this._city.updateResourceBalances();
+        this.updateResourcePanel();
 
         console.log(`Road built at (${x}, ${y})`);
     }
@@ -414,5 +425,9 @@ export default class GameController {
         this._infoPanelView.showMessage(`Demolished successfully. Refund: $${refund}`);
 
         console.log(`Content demolished at (${x}, ${y}). Refund: $${refund}`);
+    }
+
+    updateResourcePanel() {
+        this._resourcePanelView.render(this._city.resources);
     }
 }
