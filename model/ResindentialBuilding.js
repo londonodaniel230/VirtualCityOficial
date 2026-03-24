@@ -43,11 +43,16 @@ export default class ResidentialBuilding extends Building {
     }
 
     addResident(citizen) {
+        if (!this.hasAvailableSpace()) {
+            return false;
+        }
 
+        this._residents.push(citizen);
+        return true;
     }
 
     removeResident(citizenId) {
-
+        this._residents = this._residents.filter((resident) => resident.id !== citizenId);
     }
 
     hasAvailableSpace() {

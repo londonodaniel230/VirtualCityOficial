@@ -3,7 +3,7 @@ import Resources from "../business/Resources.js";
 
 export default class City {
 
-    constructor (name, mayor, region, latitude, longitude, mapWidth, mapHeight, grid) {
+    constructor (name, mayor, region, latitude, longitude, mapWidth, mapHeight, grid, citizens) {
         this._name = name;
         this._mayor = mayor;
         this._region = region;
@@ -17,6 +17,7 @@ export default class City {
         this._resources = new Resources(100000);
         this._baseHappiness = 50;
         this._averageHappiness = 50;
+        this._citizens = [];
     }
 
     // ======= GETTERS =======
@@ -73,6 +74,10 @@ export default class City {
         return this._averageHappiness;
     }
 
+    get citizens() {
+        return this._citizens;
+    }
+
     // ======= SETTERS =======
 
     set name (newName) {
@@ -127,6 +132,10 @@ export default class City {
         this._averageHappiness = newAverageHappiness;
     }
 
+    set citizens(newCitizens) {
+        this._citizens = newCitizens;
+    }
+
     // ======= METHODS =======
 
     startGame () {
@@ -160,9 +169,15 @@ export default class City {
 
     calculateScore() {
         const buildings = this.getAllBuildings();
-        const population = 0; // temporal, hasta implementar citizens
-        const unemployedCitizens = 0; // temporal
-        const allCitizensEmployed = false; // temporal
+        const population = this.getPopulation();
+
+        let unemployedCitizens = 0;
+
+        for (const citizen of this._citizens) {
+            if (!citizen.hasEmployment) {
+                unemployedCitizens += 1;
+            }
+        }
 
         let score =
             (population * 10) +
@@ -172,8 +187,7 @@ export default class City {
             (this._resources.electricityBalance * 2) +
             (this._resources.waterBalance * 2);
 
-        // Bonificaciones
-        if (allCitizensEmployed && population > 0) {
+        if (population > 0 && unemployedCitizens === 0) {
             score += 500;
         }
 
@@ -193,7 +207,6 @@ export default class City {
             score += 1000;
         }
 
-        // Penalizaciones
         if (this._resources.money < 0) {
             score -= 500;
         }
@@ -273,8 +286,33 @@ export default class City {
         return this._baseHappiness;
     }
     
-    updateAverageHappiness() {
-        this._averageHappiness = this._baseHappiness;
+    updateAverageHappiness(citizenSystem = null) {
+        if (!citizenSystem) {
+            this._averageHappiness = this._baseHappiness;
+            return this._averageHappiness;
+        }
+
+        this._averageHappiness = citizenSystem.calculateAverageHappiness(this);
         return this._averageHappiness;
+    }
+
+    getPopulation() {
+        return this._citizens.length;
+    }
+
+    getResidentialBuildings() {
+        return this.getAllBuildings().filter((building) => 
+            building.type === "house" || 
+            building.type === "apartment"
+        );
+    }
+
+    getJobBuildings() {
+        return this.getAllBuildings().filter((building) => 
+            building.type === "store" || 
+            building.type === "shopping-center" ||
+            building.type === "factory" ||
+            building.type === "farm" 
+        );
     }
 }

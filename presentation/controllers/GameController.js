@@ -19,6 +19,7 @@ import GridView from "../views/GridView.js";
 import InfoPanelView from "../views/InfoPanelView.js";
 import ResourcePanelView from "../views/ResourcePanelView.js";
 import TurnSystem from "../../business/TurnSystem.js";
+import CitizenSystem from "../../business/CitizenSystem.js";
 
 export default class GameController {
 
@@ -40,6 +41,7 @@ export default class GameController {
         this._resourcePanel = document.getElementById("resource-panel");
         this._pauseTurnButton = document.getElementById("pause-turn-btn");
         this._turnTimerText = document.getElementById("turn-timer-text");
+        this._citizenSystem = new CitizenSystem(3);
 
         this._infoPanelView = new InfoPanelView("info-panel");
         this._gridView = new GridView("map-grid");
@@ -127,7 +129,7 @@ export default class GameController {
         );
 
         this._city.calculateBaseHappiness();
-        this._city.updateAverageHappiness();
+        this._city.updateAverageHappiness(this._citizenSystem);
 
         this._turnSystem.stop();
         this._turnSystem.intervalMs = turnDuration * 1000;
@@ -174,7 +176,7 @@ export default class GameController {
             return;
         }
 
-        if (this._currentMode == "demolish") {
+        if (this._currentMode === "demolish") {
             this.demolishSelectedCell(x, y);
             return;
         }
@@ -471,16 +473,30 @@ export default class GameController {
 
         const turnResult = this._city.advanceTurn();
 
+        const newCitizens = this._citizenSystem.createCitizens(this._city);
+
+        if (newCitizens.length > 0) {
+            this._citizenSystem.assignHousing(this._city, newCitizens);
+            this._citizenSystem.assignJobs(this._city, newCitizens);
+
+            this._city.citizens.push(...newCitizens);
+        }
+
+        this._city.updateAverageHappiness(this._citizenSystem);
+        this._city.calculateScore();
+
         this.showCityInfo();
         this.updateResourcePanel();
 
         this._infoPanelView.showMessage(
-            `Turn ${turnResult.currentTurn} completed.
-            Maintenance: $${turnResult.maintenancePaid}
-            Money Produced: $${turnResult.moneyProduced}
-            Electricity: +${turnResult.electricityProduced} / -${turnResult.electricityConsumed}
-            Water: +${turnResult.waterProduced} / -${turnResult.waterConsumed}
-            Food Produced: +${turnResult.foodProduced}`
+            `Turn ${turnResult.currentTurn} completed.<br>
+            New citizens: ${newCitizens.length}<br>
+            Maintenance: $${turnResult.maintenancePaid}<br>
+            Money Produced: $${turnResult.moneyProduced}<br>
+            Electricity: +${turnResult.electricityProduced} / -${turnResult.electricityConsumed}<br>
+            Water: +${turnResult.waterProduced} / -${turnResult.waterConsumed}<br>
+            Food Produced: +${turnResult.foodProduced}<br>
+            Avg Happiness: ${this._city.averageHappiness.toFixed(2)}`
         );
 
         console.log(`Turn ${turnResult.currentTurn} executed`);

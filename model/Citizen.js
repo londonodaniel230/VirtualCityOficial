@@ -45,24 +45,51 @@ export default class Citizen {
 
     // ======= METHODS =======
     
-    calculateHappiness () {
+    calculateHappiness (cityBaseHappiness = 50) {
+        let total = cityBaseHappiness;
 
+        // Vivienda
+        if (this._hasHouse) {
+            total += 20;
+        } else {
+            total -=20;
+        }
+
+        // Empleo
+        if (this._hasEmployment) {
+            total += 15;
+        } else {
+            total -= 15;
+        }
+
+        // Minimo 0
+        if (total < 0) {
+            total = 0;
+        }
+
+        this._happiness = total;
+
+        return this._happiness;
     }
 
     assignHouse (buildingId) {
-
+        this._hasHouse = true;
+        this._houseId = buildingId;
     }
 
     removeHouse () {
-
+        this._hasHouse = false;
+        this._houseId = null;
     }
 
     assignJob (buildingId) {
-
+        this.hasEmployment = true;
+        this._jobId = buildingId;
     }
 
     removeJob () {
-
+        this._hasEmployment= false;
+        this._jobId = null;
     }
 
 }

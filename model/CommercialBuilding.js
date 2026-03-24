@@ -53,11 +53,16 @@ export default class CommercialBuilding extends Building {
     }
 
     addWorker(citizen) {
+        if (!this.hasJobVacancy()) {
+            return false;
+        }
 
-    }
+        this._workers.push(citizen);
+        return true;
+    }   
 
     removeWorker(citizenId) {
-
+        this._workers = this._workers.filter((worker) => worker.id !== citizenId);
     }
 
     hasJobVacancy() {
