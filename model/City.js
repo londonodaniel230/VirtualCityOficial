@@ -1,5 +1,19 @@
 import Grid from "../model/Grid.js";
 import Resources from "../business/Resources.js";
+import Citizen from "./Citizen.js";
+import Road from "./Road.js";
+import House from "./House.js";
+import Apartment from "./Apartment.js";
+import Store from "./Store.js";
+import ShoppingCenter from "./ShoppingCenter.js";
+import Factory from "./Factory.js";
+import Farm from "./Farm.js";
+import PoliceStation from "./PoliceStation.js";
+import FireStation from "./FireStation.js";
+import Hospital from "./Hospital.js";
+import PowerPlant from "./PowerPlant.js";
+import WaterPlant from "./WaterPlant.js";
+import Park from "./Park.js";
 
 export default class City {
 
@@ -314,5 +328,195 @@ export default class City {
             building.type === "factory" ||
             building.type === "farm" 
         );
+    }
+
+    serializeContent(content) {
+        const base = {
+            type: content.type
+        };
+
+        if (content.type === "road") {
+            return {
+                ...base,
+                cost: content.cost
+            };
+        }
+
+        return {
+            ...base,
+            id: content.id,
+            name: content.name,
+            constructionCost: content.constructionCost,
+            maintenanceCost: content.maintenanceCost,
+            electricityConsumption: content.electricityConsumption,
+            waterConsumption: content.waterConsumption,
+            happinessBonus: content.happinessBonus ?? null,
+            capacity: content.capacity ?? null,
+            jobs: content.jobs ?? null,
+            production: content.production ?? null,
+            productionAmount: content.productionAmount ?? null,
+            residentsCount: content.residents ? content.residents.length : 0,
+            workersCount: content.workers ? content.workers.length : 0
+        };
+    }
+
+    static createCitizenFromData(data) {
+        const citizen = new Citizen(data.id);
+        citizen.happiness = data.happiness;
+        citizen.hasHouse = data.hasHouse;
+        citizen.hasEmployment = data.hasEmployment;
+        return citizen;
+    }
+
+    static createGridFromData(gridData, width, height) {
+        const grid = new Grid(width, height);
+        grid.initializeGrid();
+
+        for (let row = 0; row < gridData.length; row++) {
+            for (let col = 0; col < gridData[row].length; col++) {
+                const cellData = gridData[row][col];
+
+                if (cellData.content) {
+                    const content = City.createContentFromData(cellData.content);
+                    grid.getCell(cellData.x, cellData.y).setContent(content);
+                }
+            }
+        }
+
+        return grid;
+    }
+
+    static createContentFromData(data) {
+        switch (data.type) {
+            case "road":
+                return new Road();
+
+            case "house":
+                return new House(data.id);
+
+            case "apartment":
+                return new Apartment(data.id);
+
+            case "store":
+                return new Store(data.id);
+
+            case "shopping-center":
+                return new ShoppingCenter(data.id);
+
+            case "factory":
+                return new Factory(data.id);
+
+            case "farm":
+                return new Farm(data.id);
+
+            case "police-station":
+                return new PoliceStation(data.id);
+
+            case "fire-station":
+                return new FireStation(data.id);
+
+            case "hospital":
+                return new Hospital(data.id);
+
+            case "power-plant":
+                return new PowerPlant(data.id);
+
+            case "water-plant":
+                return new WaterPlant(data.id);
+
+            case "park":
+                return new Park(data.id);
+
+            default:
+                return null;
+        }
+    }
+    
+    toJSON() {
+        return {
+            name: this._name,
+            mayor: this._mayor,
+            region: this._region,
+            latitude: this._latitude,
+            longitude: this._longitude,
+            mapWidth: this._mapWidth,
+            mapHeight: this._mapHeight,
+            currentTurn: this._currentTurn,
+            score: this._score,
+            baseHappiness: this._baseHappiness,
+            averageHappiness: this._averageHappiness,
+            resources: {
+                money: this._resources.money,
+                electricity: this._resources.electricity,
+                water: this._resources.water,
+                food: this._resources.food,
+                moneyBalance: this._resources.moneyBalance,
+                electricityBalance: this._resources.electricityBalance,
+                waterBalance: this._resources.waterBalance,
+                foodBalance: this._resources.foodBalance
+            },
+            citizens: this._citizens.map((citizen) => ({
+                id: citizen.id,
+                happiness: citizen.happiness,
+                hasHouse: citizen.hasHouse,
+                hasEmployment: citizen.hasEmployment
+            })),
+            grid: this._grid.cells.map((row) =>
+                row.map((cell) => {
+                    if (cell.isEmpty()) {
+                        return {
+                            x: cell.x,
+                            y: cell.y,
+                            content: null
+                        };
+                    }
+
+                    const content = cell.content;
+
+                    return {
+                        x: cell.x,
+                        y: cell.y,
+                        content: this.serializeContent(content)
+                    };
+                })
+            )
+        };
+    }
+
+    static fromJSON(data) {
+        const city = new City(
+            data.name,
+            data.mayor,
+            data.region,
+            data.latitude,
+            data.longitude,
+            data.mapWidth,
+            data.mapHeight,
+            null
+        );
+
+        city._currentTurn = data.currentTurn;
+        city._score = data.score;
+        city._baseHappiness = data.baseHappiness;
+        city._averageHappiness = data.averageHappiness;
+
+        city._resources.money = data.resources.money;
+        city._resources.electricity = data.resources.electricity;
+        city._resources.water = data.resources.water;
+        city._resources.food = data.resources.food;
+
+        city._resources._moneyBalance = data.resources.moneyBalance ?? 0;
+        city._resources._electricityBalance = data.resources.electricityBalance ?? 0;
+        city._resources._waterBalance = data.resources.waterBalance ?? 0;
+        city._resources._foodBalance = data.resources.foodBalance ?? 0;
+
+        city._citizens = data.citizens.map((citizenData) => {
+            const citizen = City.createCitizenFromData(citizenData);
+            return citizen;
+        });
+
+        city._grid = City.createGridFromData(data.grid, data.mapWidth, data.mapHeight);
+
+        return city;
     }
 }

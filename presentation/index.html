@@ -52,6 +52,27 @@
                                 </select>
                             </div>
 
+                            <div class="col-md-6">
+                                <label for="importJsonFile" class="form-label">Import Save (.json)</label>
+                                <input type="file" class="form-control" id="importJsonFile" accept=".json,application/json">
+                            </div>
+
+                            <div class="col-12">
+                                <button type="button" id="load-json-btn" class="btn btn-secondary w-100">
+                                    Load Saved JSON
+                                </button>
+                            </div>
+
+                            <div class="col-12 d-flex gap-2">
+                                <button type="button" id="continue-game-btn" class="btn btn-success w-50 d-none">
+                                    Continue Saved Game
+                                </button>
+
+                                <button type="button" id="new-game-btn" class="btn btn-danger w-50 d-none">
+                                    Start New Game
+                                </button>
+                            </div>
+
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary w-100">
                                     Create City
@@ -143,6 +164,14 @@
 
                         <button type="button" class="btn btn-light btn-sm" data-building="park" data-label="Park">
                             Park
+                        </button>
+
+                        <button id="save-game-btn" type="button" class="btn btn-light btn-sm">
+                            Save Game
+                        </button>
+
+                        <button id="export-game-btn" type="button" class="btn btn-light btn-sm">
+                            Export JSON
                         </button>
                     </div>
                 </div>

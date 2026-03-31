@@ -20,6 +20,7 @@ import InfoPanelView from "../views/InfoPanelView.js";
 import ResourcePanelView from "../views/ResourcePanelView.js";
 import TurnSystem from "../../business/TurnSystem.js";
 import CitizenSystem from "../../business/CitizenSystem.js";
+import SaveManager from "../../data_access/SaveManager.js";
 
 export default class GameController {
 
@@ -47,6 +48,15 @@ export default class GameController {
         this._gridView = new GridView("map-grid");
         this._buildMenuView = new BuildMenuView("build-menu");
         this._resourcePanelView = new ResourcePanelView("resource-panel");
+
+        this._saveManager = new SaveManager();
+        this._saveGameButton = document.getElementById("save-game-btn");
+        this._exportGameButton = document.getElementById("export-game-btn");
+        this._autoSaveIntervalId = null;
+        this._loadJsonButton = document.getElementById("load-json-btn");
+        this._importJsonFile = document.getElementById("importJsonFile");
+        this._continueGameButton = document.getElementById("continue-game-btn");
+        this._newGameButton = document.getElementById("new-game-btn");
 
         this._city = null;
         this._selectedCell = null;
@@ -98,6 +108,48 @@ export default class GameController {
         this._buildMenuView.bindBuildingSelection((buildingType, button) => {
             this.setMode("buildBuilding", button, buildingType);
         });
+
+        if (this._saveGameButton) {
+            this._saveGameButton.addEventListener("click", () => {
+                this.saveCurrentGame();
+            });
+        }
+
+        if (this._exportGameButton) {
+            this._exportGameButton.addEventListener("click", () => {
+                this.exportCurrentGame();
+            });
+        }
+
+        if (this._loadJsonButton) {
+            this._loadJsonButton.addEventListener("click", () => {
+                this.loadGameFromJsonFile();
+            });
+        }
+
+        if (this._continueGameButton) {
+            this._continueGameButton.addEventListener("click", () => {
+                this.loadSavedGame();
+            });
+        }
+
+        if (this._newGameButton) {
+            this._newGameButton.addEventListener("click", () => {
+                this.startNewGame();
+            });
+        }
+
+        const savedData = this._saveManager.loadGame();
+
+        if (savedData) {
+            if (this._continueGameButton) {
+                this._continueGameButton.classList.remove("d-none");
+            }
+
+            if (this._newGameButton) {
+                this._newGameButton.classList.remove("d-none");
+            }
+        }
     }
 
      /*
@@ -149,6 +201,8 @@ export default class GameController {
 
         this._turnSystem.start();
         this.updateTurnTimer(Math.ceil(this._turnSystem.intervalMs / 1000));
+        this.startAutoSave();
+        this._saveManager.saveGame(this._city.toJSON());
     }
 
     /*
@@ -230,6 +284,8 @@ export default class GameController {
 
         this._city.updateResourceBalances();
         this.updateResourcePanel();
+
+        this._saveManager.saveGame(this._city.toJSON());
 
         console.log(`Road built at (${x}, ${y})`);
     }
@@ -315,6 +371,8 @@ export default class GameController {
         this.showCityInfo();
         this._city.updateResourceBalances();
         this.updateResourcePanel();
+
+        this._saveManager.saveGame(this._city.toJSON());
 
         console.log(`${building.name} built at (${x}, ${y})`);
     }
@@ -459,6 +517,8 @@ export default class GameController {
         this.updateResourcePanel();
         this._infoPanelView.showMessage(`Demolished successfully. Refund: $${refund}`);
 
+        this._saveManager.saveGame(this._city.toJSON());
+
         console.log(`Content demolished at (${x}, ${y}). Refund: $${refund}`);
     }
 
@@ -499,6 +559,8 @@ export default class GameController {
             Avg Happiness: ${this._city.averageHappiness.toFixed(2)}`
         );
 
+        this._saveManager.saveGame(this._city.toJSON());
+
         console.log(`Turn ${turnResult.currentTurn} executed`);
     }
 
@@ -524,5 +586,136 @@ export default class GameController {
         if (this._turnTimerText) {
             this._turnTimerText.textContent = `Next Turn In: ${remainingSeconds}s`;
         }
+    }
+
+    saveCurrentGame() {
+        if (!this._city) {
+            return;
+        }
+
+        this._saveManager.saveGame(this._city.toJSON());
+        this._infoPanelView.showMessage("Game saved successfully.");
+    }
+
+    loadSavedGame() {
+        const savedData = this._saveManager.loadGame();
+
+        if (!savedData) {
+            this._infoPanelView.showMessage("No saved game found.");
+            return;
+        }
+
+        this._city = City.fromJSON(savedData);
+
+        this._setupSection.classList.add("d-none");
+        this._mapSection.classList.remove("d-none");
+        this._infoBar.classList.remove("d-none");
+        this._infoPanel.classList.remove("d-none");
+        this._resourcePanel.classList.remove("d-none");
+
+        this.showCityInfo();
+        this.renderGrid();
+        this.updateResourcePanel();
+
+        this._turnSystem.reset();
+        this._turnSystem.start();
+
+        this._infoPanelView.showMessage("Saved game loaded successfully.");
+    }
+
+    exportCurrentGame() {
+        if (!this._city) {
+            return;
+        }
+
+        this._saveManager.exportToJson(this._city.toJSON());
+        this._infoPanelView.showMessage("Game exported to JSON.");
+    }
+
+    startAutoSave() {
+        this.stopAutoSave();
+
+        this._autoSaveIntervalId = setInterval(() => {
+            if (this._city) {
+                this._saveManager.saveGame(this._city.toJSON());
+                console.log("Auto-save completed.");
+            }
+        }, 30000);
+    }
+
+    stopAutoSave() {
+        if (this._autoSaveIntervalId) {
+            clearInterval(this._autoSaveIntervalId);
+            this._autoSaveIntervalId = null;
+        }
+    }
+
+    restoreGame(savedData) {
+        if (!savedData) {
+            return;
+        }
+
+        this._city = City.fromJSON(savedData);
+
+        // Ocultar setup y mostrar juego
+        this._setupSection.classList.add("d-none");
+        this._mapSection.classList.remove("d-none");
+        this._infoBar.classList.remove("d-none");
+        this._infoPanel.classList.remove("d-none");
+        this._resourcePanel.classList.remove("d-none");
+
+        // Renderizar todo
+        this.showCityInfo();
+        this.renderGrid();
+        this.updateResourcePanel();
+
+        // Reiniciar sistema de turnos
+        this._turnSystem.reset();
+        this._turnSystem.start();
+
+        this.updateTurnTimer(Math.ceil(this._turnSystem.intervalMs / 1000));
+
+        // Iniciar autoguardado
+        this.startAutoSave();
+    }
+
+    loadGameFromJsonFile() {
+        const file = this._importJsonFile.files[0];
+
+        if (!file) {
+            alert("Please select a JSON file first.");
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            try {
+                const jsonText = event.target.result;
+                const savedData = this._saveManager.importGameFromJson(jsonText);
+
+                if (!savedData) {
+                    alert("Invalid save file.");
+                    return;
+                }
+
+                this.restoreGame(savedData);
+                this._saveManager.saveGame(this._city.toJSON());
+            } catch (error) {
+                console.error(error);
+                alert("Could not load the JSON file.");
+            }
+        };
+
+        reader.readAsText(file);
+    }
+
+    startNewGame() {
+        this._saveManager.clearSave();
+
+        this._turnSystem.stop();
+        this.stopAutoSave();
+
+        location.reload();
     }
 }
