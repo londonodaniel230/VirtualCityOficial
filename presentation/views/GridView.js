@@ -14,7 +14,7 @@ export default class GridView {
      * Crea dinámicamente cada celda del mapa y le asigna un evento
      * para detectar cuando el usuario hace clic en ella.
      */
-    render(grid, onCellClick) {
+    render(grid, onCellClick, routeCells = []) {
         this._container.innerHTML = "";
         this._container.style.display = "grid";
         this._container.style.gridTemplateColumns = `repeat(${grid.width}, 30px)`;
@@ -30,35 +30,43 @@ export default class GridView {
                 cellElement.dataset.y = cell.y;
 
                 if (!cell.isEmpty()) {
-    if (cell.content.type === "road") {
-        cellElement.classList.add("road-cell");
-    } else if (cell.content.type === "house") {
-        cellElement.classList.add("house-cell");
-    } else if (cell.content.type === "apartment") {
-        cellElement.classList.add("apartment-cell");
-    } else if (cell.content.type === "store") {
-        cellElement.classList.add("store-cell");
-    } else if (cell.content.type === "shopping-center") {
-        cellElement.classList.add("shopping-center-cell");
-    } else if (cell.content.type === "factory") {
-        cellElement.classList.add("factory-cell");
-    } else if (cell.content.type === "farm") {
-        cellElement.classList.add("farm-cell");
-    } else if (cell.content.type === "police-station") {
-        cellElement.classList.add("police-station-cell");
-    } else if (cell.content.type === "fire-station") {
-        cellElement.classList.add("fire-station-cell");
-    } else if (cell.content.type === "hospital") {
-        cellElement.classList.add("hospital-cell");
-    } else if (cell.content.type === "power-plant") {
-        cellElement.classList.add("power-plant-cell");
-    } else if (cell.content.type === "water-plant") {
-        cellElement.classList.add("water-plant-cell");
-    } else if (cell.content.type === "park") {
-        cellElement.classList.add("park-cell");
-    }
-}
+                    if (cell.content.type === "road") {
+                        cellElement.classList.add("road-cell");
+                    } else if (cell.content.type === "house") {
+                        cellElement.classList.add("house-cell");
+                    } else if (cell.content.type === "apartment") {
+                        cellElement.classList.add("apartment-cell");
+                    } else if (cell.content.type === "store") {
+                        cellElement.classList.add("store-cell");
+                    } else if (cell.content.type === "shopping-center") {
+                        cellElement.classList.add("shopping-center-cell");
+                    } else if (cell.content.type === "factory") {
+                        cellElement.classList.add("factory-cell");
+                    } else if (cell.content.type === "farm") {
+                        cellElement.classList.add("farm-cell");
+                    } else if (cell.content.type === "police-station") {
+                        cellElement.classList.add("police-station-cell");
+                    } else if (cell.content.type === "fire-station") {
+                        cellElement.classList.add("fire-station-cell");
+                    } else if (cell.content.type === "hospital") {
+                        cellElement.classList.add("hospital-cell");
+                    } else if (cell.content.type === "power-plant") {
+                        cellElement.classList.add("power-plant-cell");
+                    } else if (cell.content.type === "water-plant") {
+                        cellElement.classList.add("water-plant-cell");
+                    } else if (cell.content.type === "park") {
+                        cellElement.classList.add("park-cell");
+                    }
+                }
 
+                const isRouteCell = routeCells.some(
+                    (routeCell) => routeCell.x === cell.x && routeCell.y === cell.y
+                );
+
+                if (isRouteCell) {
+                    cellElement.classList.add("route-cell");
+                }
+                
                 cellElement.addEventListener("click", () => {
                     onCellClick(cell.x, cell.y);
                 });

@@ -14,6 +14,7 @@ import Hospital from "./Hospital.js";
 import PowerPlant from "./PowerPlant.js";
 import WaterPlant from "./WaterPlant.js";
 import Park from "./Park.js";
+import ScoreSystem from "../business/ScoreSystem.js";
 
 export default class City {
 
@@ -182,64 +183,7 @@ export default class City {
     }
 
     calculateScore() {
-        const buildings = this.getAllBuildings();
-        const population = this.getPopulation();
-
-        let unemployedCitizens = 0;
-
-        for (const citizen of this._citizens) {
-            if (!citizen.hasEmployment) {
-                unemployedCitizens += 1;
-            }
-        }
-
-        let score =
-            (population * 10) +
-            (this._averageHappiness * 5) +
-            (this._resources.money / 100) +
-            (buildings.length * 50) +
-            (this._resources.electricityBalance * 2) +
-            (this._resources.waterBalance * 2);
-
-        if (population > 0 && unemployedCitizens === 0) {
-            score += 500;
-        }
-
-        if (this._averageHappiness > 80) {
-            score += 300;
-        }
-
-        if (
-            this._resources.electricity > 0 &&
-            this._resources.water > 0 &&
-            this._resources.food > 0
-        ) {
-            score += 200;
-        }
-
-        if (population > 1000) {
-            score += 1000;
-        }
-
-        if (this._resources.money < 0) {
-            score -= 500;
-        }
-
-        if (this._resources.electricity < 0) {
-            score -= 300;
-        }
-
-        if (this._resources.water < 0) {
-            score -= 300;
-        }
-
-        if (this._averageHappiness < 40) {
-            score -= 400;
-        }
-
-        score -= unemployedCitizens * 10;
-
-        this._score = Math.floor(score);
+        this._score = ScoreSystem.calculate(this);
         return this._score;
     }
 

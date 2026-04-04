@@ -21,6 +21,10 @@ import ResourcePanelView from "../views/ResourcePanelView.js";
 import TurnSystem from "../../business/TurnSystem.js";
 import CitizenSystem from "../../business/CitizenSystem.js";
 import SaveManager from "../../data_access/SaveManager.js";
+import RouteSystem from "../../business/RouteSystem.js";
+import RouteApi from "../../data_access/RouteApi.js";
+import RankingRepository from "../../data_access/RankingRepository.js";
+import RankingView from "../views/RankingView.js";
 
 export default class GameController {
 
@@ -57,6 +61,27 @@ export default class GameController {
         this._importJsonFile = document.getElementById("importJsonFile");
         this._continueGameButton = document.getElementById("continue-game-btn");
         this._newGameButton = document.getElementById("new-game-btn");
+
+        this._routeApi = new RouteApi();
+        this._routeOrigin = null;
+        this._routeDestination = null;
+        this._routeCells = [];
+        this._routeButton = document.getElementById("route-btn");
+
+        this._rankingRepository = new RankingRepository();
+        this._rankingView = new RankingView("ranking-panel");
+        this._rankingPanel = document.getElementById("ranking-panel");
+
+        this._sidePanel = document.getElementById("side-panel");
+        this._toggleSidePanelButton = document.getElementById("toggle-side-panel-btn");
+        this._closeSidePanelButton = document.getElementById("close-side-panel-btn");
+
+        this._showRankingButton = document.getElementById("show-ranking-btn");
+        this._showWeatherButton = document.getElementById("show-weather-btn");
+        this._showNewsButton = document.getElementById("show-news-btn");
+
+        this._weatherPanel = document.getElementById("weather-panel");
+        this._newsPanel = document.getElementById("news-panel");
 
         this._city = null;
         this._selectedCell = null;
@@ -139,6 +164,46 @@ export default class GameController {
             });
         }
 
+        if (this._routeButton) {
+            this._routeButton.addEventListener("click", () => {
+                this.setMode("routeSelect", this._routeButton);
+                this._routeOrigin = null;
+                this._routeDestination = null;
+                this._routeCells = [];
+                this.renderGrid();
+            });
+        }
+
+        if (this._toggleSidePanelButton) {
+            this._toggleSidePanelButton.addEventListener("click", () => {
+                this.toggleSidePanel();
+            });
+        }
+
+        if (this._closeSidePanelButton) {
+            this._closeSidePanelButton.addEventListener("click", () => {
+                this.closeSidePanel();
+            });
+        }
+
+        if (this._showRankingButton) {
+            this._showRankingButton.addEventListener("click", () => {
+                this.showSideSection("ranking-panel");
+            });
+        }
+
+        if (this._showWeatherButton) {
+            this._showWeatherButton.addEventListener("click", () => {
+                this.showSideSection("weather-panel");
+            });
+        }
+
+        if (this._showNewsButton) {
+            this._showNewsButton.addEventListener("click", () => {
+                this.showSideSection("news-panel");
+            });
+        }
+
         const savedData = this._saveManager.loadGame();
 
         if (savedData) {
@@ -203,6 +268,15 @@ export default class GameController {
         this.updateTurnTimer(Math.ceil(this._turnSystem.intervalMs / 1000));
         this.startAutoSave();
         this._saveManager.saveGame(this._city.toJSON());
+
+        this._rankingPanel.classList.remove("d-none");
+        this.updateRanking();
+
+        if (this._toggleSidePanelButton) {
+            this._toggleSidePanelButton.classList.remove("d-none");
+        }
+
+        this.showSideSection("ranking-panel");
     }
 
     /*
@@ -211,7 +285,7 @@ export default class GameController {
     renderGrid() {
         this._gridView.render(this._city.grid, (x, y) => {
             this.handleCellClick(x, y);
-        });
+        }, this._routeCells);
     }
 
     /*
@@ -232,6 +306,11 @@ export default class GameController {
 
         if (this._currentMode === "demolish") {
             this.demolishSelectedCell(x, y);
+            return;
+        }
+
+        if (this._currentMode === "routeSelect") {
+            this.handleRouteSelection(x, y);
             return;
         }
 
@@ -441,7 +520,7 @@ export default class GameController {
     }
 
     resetButtons() {
-        const allButtons = document.querySelectorAll("#build-road-btn, #build-menu button, #demolish-btn");
+        const allButtons = document.querySelectorAll("#build-road-btn, #build-menu button, #demolish-btn, #route-btn");
 
         allButtons.forEach((btn) => {
             btn.classList.remove("btn-danger", "btn-warning");
@@ -459,6 +538,8 @@ export default class GameController {
                 btn.classList.add("btn-warning");
             } else if (btn.id === "demolish-btn"){
                 btn.textContent = "Demolish";
+            } else if (btn.id === "route-btn"){
+                btn.textContent = "Route";
             }
         });
     }
@@ -547,6 +628,7 @@ export default class GameController {
 
         this.showCityInfo();
         this.updateResourcePanel();
+        this.saveCurrentScoreToRanking();
 
         this._infoPanelView.showMessage(
             `Turn ${turnResult.currentTurn} completed.<br>
@@ -677,6 +759,16 @@ export default class GameController {
 
         // Iniciar autoguardado
         this.startAutoSave();
+
+        // RANKING
+        this._rankingPanel.classList.remove("d-none");
+        this.updateRanking();
+
+        if (this._toggleSidePanelButton) {
+            this._toggleSidePanelButton.classList.remove("d-none");
+        }
+
+        this.showSideSection("ranking-panel");
     }
 
     loadGameFromJsonFile() {
@@ -717,5 +809,105 @@ export default class GameController {
         this.stopAutoSave();
 
         location.reload();
+
+        this.closeSidePanel();
+    }
+
+    async handleRouteSelection(x, y) {
+        const grid = this._city.grid;
+        const cell = grid.getCell(x, y);
+
+        if (!cell || cell.isEmpty() || cell.content.type !== "road") {
+            alert("You must select a road cell.");
+            return;
+        }
+
+        if (!this._routeOrigin) {
+            this._routeOrigin = { x, y };
+            this._infoPanelView.showMessage(`Route origin selected: (${x}, ${y})`);
+            return;
+        }
+
+        this._routeDestination = { x, y };
+
+        try {
+            const map = RouteSystem.buildMatrix(grid);
+
+            const start = RouteSystem.toApiCoordinate(
+                this._routeOrigin.x,
+                this._routeOrigin.y
+            );
+
+            const end = RouteSystem.toApiCoordinate(
+                this._routeDestination.x,
+                this._routeDestination.y
+            );
+
+            const result = await this._routeApi.calculateRoute(map, start, end);
+
+            this._routeCells = RouteSystem.fromApiRoute(result.route);
+
+            this.renderGrid();
+
+            this._infoPanelView.showMessage(
+                `Route calculated successfully. Length: ${result.route.length}`
+            );
+        } catch (error) {
+            console.error(error);
+            alert(error.message);
+        } finally {
+            this._routeOrigin = null;
+            this._routeDestination = null;
+        }
+    }
+
+    updateRanking() {
+        const ranking = this._rankingRepository.loadRanking();
+        this._rankingView.render(ranking);
+    }
+
+    saveCurrentScoreToRanking() {
+        if (!this._city) {
+            return;
+        }
+
+        this._rankingRepository.addScore({
+            cityName: this._city.name,
+            score: this._city.score
+        });
+
+        this.updateRanking();
+    }
+
+    toggleSidePanel() {
+        if (!this._sidePanel) {
+            return;
+        }
+
+        this._sidePanel.classList.toggle("open");
+        this._sidePanel.classList.toggle("closed");
+    }
+
+    closeSidePanel() {
+        if (!this._sidePanel) {
+            return;
+        }
+
+        this._sidePanel.classList.remove("open");
+        this._sidePanel.classList.add("closed");
+    }
+
+    showSideSection(sectionId) {
+        const sections = document.querySelectorAll(".side-panel-section");
+
+        sections.forEach((section) => {
+            section.classList.add("d-none");
+        });
+
+        const activeSection = document.getElementById(sectionId);
+
+        if (activeSection) {
+            activeSection.classList.remove("d-none");
+        }
     }
 }

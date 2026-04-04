@@ -10,6 +10,48 @@
 </head>
 <body class="bg-light">
 
+    <button id="toggle-side-panel-btn" class="btn btn-dark btn-sm d-none">
+        Panels
+    </button>
+
+    <div id="side-panel" class="side-panel closed">
+        <div class="side-panel-header">
+            <h3 class="mb-0">City Panels</h3>
+            <button id="close-side-panel-btn" type="button" class="btn btn-sm btn-outline-light">
+                Close
+            </button>
+        </div>
+
+        <div class="side-panel-tabs">
+            <button id="show-ranking-btn" type="button" class="btn btn-light btn-sm">
+                Ranking
+            </button>
+
+            <button id="show-weather-btn" type="button" class="btn btn-light btn-sm">
+                Weather
+            </button>
+
+            <button id="show-news-btn" type="button" class="btn btn-light btn-sm">
+                News
+            </button>
+        </div>
+
+        <div id="ranking-panel" class="side-panel-section d-none">
+            <h3>Ranking</h3>
+            <p>No ranking data yet.</p>
+        </div>
+
+        <div id="weather-panel" class="side-panel-section d-none">
+            <h3>Weather</h3>
+            <p>No weather data yet.</p>
+        </div>
+
+        <div id="news-panel" class="side-panel-section d-none">
+            <h3>News</h3>
+            <p>No news available.</p>
+        </div>
+    </div>
+
     <div class="container py-4">
         <div class="row justify-content-center">
             <div class="col-12 col-xl-10">
@@ -114,6 +156,10 @@
 
                         <button id="demolish-btn" type="button" class="btn btn-light btn-sm">
                             Demolish
+                        </button>
+
+                        <button id="route-btn" type="button" class="btn btn-light btn-sm">
+                            Route
                         </button>
                     </div>
 
