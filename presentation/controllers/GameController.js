@@ -25,6 +25,10 @@ import RouteSystem from "../../business/RouteSystem.js";
 import RouteApi from "../../data_access/RouteApi.js";
 import RankingRepository from "../../data_access/RankingRepository.js";
 import RankingView from "../views/RankingView.js";
+import WeatherApi from "../../data_access/WeatherApi.js";
+import NewsApi from "../../data_access/NewsApi.js";
+import WeatherView from "../views/WeatherView.js";
+import NewsView from "../views/NewsView.js";
 
 export default class GameController {
 
@@ -87,6 +91,15 @@ export default class GameController {
         this._selectedCell = null;
         this._currentMode = "select";
         this._selectedBuildingType = null;
+
+        this._weatherApi = new WeatherApi("62532b0f6b03512e261a6d40ed17cb2e");
+        this._newsApi = new NewsApi("2148d689e9b3477a8807f4424decdea4");
+
+        this._weatherView = new WeatherView("weather-panel");
+        this._newsView = new NewsView("news-panel");
+
+        this._weatherRefreshIntervalId = null;
+        this._newsRefreshIntervalId = null;
 
         this._turnSystem = new TurnSystem(
             () => {
@@ -230,6 +243,7 @@ export default class GameController {
 
         const turnDurationInput = parseInt(document.getElementById("turnDuration").value);
         const turnDuration = isNaN(turnDurationInput) || turnDurationInput < 1 ? 5 : turnDurationInput;
+        const coordinates = this.getCoordinatesByRegion(region);
 
         const grid = new Grid(size, size);
         grid.initializeGrid();
@@ -238,8 +252,8 @@ export default class GameController {
             cityName,
             mayorName,
             region,
-            0,
-            0,
+            coordinates.lat,
+            coordinates.lon,
             size,
             size,
             grid
@@ -277,6 +291,8 @@ export default class GameController {
         }
 
         this.showSideSection("ranking-panel");
+
+        this.startExternalDataRefresh();
     }
 
     /*
@@ -769,6 +785,8 @@ export default class GameController {
         }
 
         this.showSideSection("ranking-panel");
+
+        this.startExternalDataRefresh();
     }
 
     loadGameFromJsonFile() {
@@ -811,6 +829,8 @@ export default class GameController {
         location.reload();
 
         this.closeSidePanel();
+
+        this.stopExternalDataRefresh();
     }
 
     async handleRouteSelection(x, y) {
@@ -909,5 +929,142 @@ export default class GameController {
         if (activeSection) {
             activeSection.classList.remove("d-none");
         }
+    }
+
+    async loadWeather() {
+        if (!this._city) {
+            return;
+        }
+
+        try {
+            const weatherData = await this._weatherApi.getWeather(
+                this._city.latitude,
+                this._city.longitude
+            );
+
+            this._weatherView.render(weatherData);
+        } catch (error) {
+            console.error(error);
+            this._weatherView.showError("Could not load weather data.");
+        }
+    }
+
+    async loadNews() {
+        if (!this._city) {
+            return;
+        }
+
+        try {
+            const countryCode = this.getCountryCodeFromRegion(this._city.region);
+            let newsItems = await this._newsApi.getTopHeadlines(countryCode);
+
+            if (!newsItems || newsItems.length === 0) {
+                newsItems = await this._newsApi.searchNews(this._city.region);
+            }
+
+            if (!newsItems || newsItems.length === 0) {
+                newsItems = await this._newsApi.getTopHeadlines("us");
+            }
+
+            this._newsView.render(newsItems);
+        } catch (error) {
+            console.error(error);
+            this._newsView.showError("Could not load news.");
+        }
+    }
+
+    getCountryCodeFromRegion(region) {
+        const normalized = region.trim().toLowerCase();
+
+        const regionMap = {
+            colombia: "co",
+            bogota: "co",
+            medellin: "co",
+            cali: "co",
+            barranquilla: "co",
+            cartagena: "co",
+            bucaramanga: "co",
+            cucuta: "co",
+            pereira: "co",
+            manizales: "co",
+            "santa marta": "co",
+
+            mexico: "mx",
+            argentina: "ar",
+            brazil: "br",
+            chile: "cl",
+            peru: "pe",
+            spain: "es",
+            france: "fr",
+            germany: "de",
+            italy: "it",
+            usa: "us",
+            "united states": "us",
+            uk: "gb",
+            "united kingdom": "gb"
+        };
+
+        return regionMap[normalized] || "us";
+    }
+
+    startExternalDataRefresh() {
+        this.stopExternalDataRefresh();
+
+        this.loadWeather();
+        this.loadNews();
+
+        this._weatherRefreshIntervalId = setInterval(() => {
+            this.loadWeather();
+        }, 1800000);
+
+        this._newsRefreshIntervalId = setInterval(() => {
+            this.loadNews();
+        }, 1800000);
+    }
+
+    stopExternalDataRefresh() {
+        if (this._weatherRefreshIntervalId) {
+            clearInterval(this._weatherRefreshIntervalId);
+            this._weatherRefreshIntervalId = null;
+        }
+
+        if (this._newsRefreshIntervalId) {
+            clearInterval(this._newsRefreshIntervalId);
+            this._newsRefreshIntervalId = null;
+        }
+    }
+
+    getCoordinatesByRegion(region) {
+        const normalizedRegion = region.trim().toLowerCase();
+
+        const regionCoordinates = {
+            bogota: { lat: 4.7110, lon: -74.0721 },
+            medellin: { lat: 6.2442, lon: -75.5812 },
+            cali: { lat: 3.4516, lon: -76.5320 },
+            barranquilla: { lat: 10.9685, lon: -74.7813 },
+            cartagena: { lat: 10.3910, lon: -75.4794 },
+            bucaramanga: { lat: 7.1193, lon: -73.1227 },
+            cucuta: { lat: 7.8939, lon: -72.5078 },
+            pereira: { lat: 4.8133, lon: -75.6961 },
+            manizales: { lat: 5.0703, lon: -75.5138 },
+            "santa marta": { lat: 11.2408, lon: -74.1990 },
+
+            colombia: { lat: 4.5709, lon: -74.2973 },
+            mexico: { lat: 23.6345, lon: -102.5528 },
+            argentina: { lat: -38.4161, lon: -63.6167 },
+            brazil: { lat: -14.2350, lon: -51.9253 },
+            chile: { lat: -35.6751, lon: -71.5430 },
+            peru: { lat: -9.1900, lon: -75.0152 },
+            spain: { lat: 40.4637, lon: -3.7492 },
+            france: { lat: 46.2276, lon: 2.2137 },
+            germany: { lat: 51.1657, lon: 10.4515 },
+            italy: { lat: 41.8719, lon: 12.5674 },
+            "united states": { lat: 37.0902, lon: -95.7129 },
+            usa: { lat: 37.0902, lon: -95.7129 },
+            uk: { lat: 55.3781, lon: -3.4360 },
+            "united kingdom": { lat: 55.3781, lon: -3.4360 }
+        };
+
+        return regionCoordinates[normalizedRegion] || { lat: 4.5709, lon: -74.2973 };
     }
 }
