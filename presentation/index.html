@@ -8,10 +8,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../presentation/css/styles.css">
 </head>
-<body class="bg-light">
+<body class="bg-light city-builder-app">
 
-    <button id="toggle-side-panel-btn" class="btn btn-dark btn-sm d-none">
+    <button id="toggle-side-panel-btn" class="btn btn-dark btn-sm d-none panel-toggle-btn">
         Panels
+    </button>
+
+    <button id="toggle-info-panel-btn" class="btn btn-dark btn-sm d-none info-panel-toggle-btn" type="button">
+        Info
     </button>
 
     <div id="side-panel" class="side-panel closed">
@@ -23,32 +27,32 @@
         </div>
 
         <div class="side-panel-tabs">
-            <button id="show-ranking-btn" type="button" class="btn btn-light btn-sm">
+            <button id="show-ranking-btn" type="button" class="btn btn-light btn-sm side-tab-btn" data-section="ranking-panel">
                 Ranking
             </button>
 
-            <button id="show-weather-btn" type="button" class="btn btn-light btn-sm">
+            <button id="show-weather-btn" type="button" class="btn btn-light btn-sm side-tab-btn" data-section="weather-panel">
                 Weather
             </button>
 
-            <button id="show-news-btn" type="button" class="btn btn-light btn-sm">
+            <button id="show-news-btn" type="button" class="btn btn-light btn-sm side-tab-btn" data-section="news-panel">
                 News
             </button>
         </div>
 
         <div id="ranking-panel" class="side-panel-section d-none">
-            <h3>Ranking</h3>
-            <p>No ranking data yet.</p>
+            <h3 class="panel-heading">Ranking</h3>
+            <p class="panel-empty-state">No ranking data yet.</p>
         </div>
 
         <div id="weather-panel" class="side-panel-section d-none">
-            <h3>Weather</h3>
-            <p>No weather data yet.</p>
+            <h3 class="panel-heading">Weather</h3>
+            <p class="panel-empty-state">No weather data yet.</p>
         </div>
 
         <div id="news-panel" class="side-panel-section d-none">
-            <h3>News</h3>
-            <p>No news available.</p>
+            <h3 class="panel-heading">News</h3>
+            <p class="panel-empty-state">No news available.</p>
         </div>
     </div>
 
@@ -56,9 +60,11 @@
         <div class="row justify-content-center">
             <div class="col-12 col-xl-10">
 
-                <div id="setup-section" class="card shadow-sm mb-4">
-                    <div class="card-header">
-                        <h2 class="mb-0">City Setup</h2>
+                <div id="setup-section" class="card shadow-sm mb-4 setup-card">
+                    <div class="card-header setup-card-header">
+                        <span class="setup-kicker">Urban Planning Console</span>
+                        <h2 class="mb-2">City Setup</h2>
+                        <p class="setup-subtitle mb-0">Configure your city identity, scale and turn speed before opening the map.</p>
                     </div>
 
                     <div class="card-body">
@@ -100,23 +106,23 @@
                             </div>
 
                             <div class="col-12">
-                                <button type="button" id="load-json-btn" class="btn btn-secondary w-100">
+                                <button type="button" id="load-json-btn" class="btn btn-secondary w-100 setup-secondary-btn">
                                     Load Saved JSON
                                 </button>
                             </div>
 
-                            <div class="col-12 d-flex gap-2">
-                                <button type="button" id="continue-game-btn" class="btn btn-success w-50 d-none">
+                            <div class="col-12 d-flex gap-2 setup-split-actions">
+                                <button type="button" id="continue-game-btn" class="btn btn-success w-50 d-none setup-continue-btn">
                                     Continue Saved Game
                                 </button>
 
-                                <button type="button" id="new-game-btn" class="btn btn-danger w-50 d-none">
+                                <button type="button" id="new-game-btn" class="btn btn-danger w-50 d-none setup-new-btn">
                                     Start New Game
                                 </button>
                             </div>
 
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary w-100">
+                                <button type="submit" class="btn btn-primary w-100 setup-primary-btn">
                                     Create City
                                 </button>
                             </div>
@@ -146,84 +152,95 @@
 
                         <span id="turn-timer-text">Next Turn In: 60s</span>
 
-                        <button id="pause-turn-btn" type="button" class="btn btn-light btn-sm">
+                        <button id="pause-turn-btn" type="button" class="btn btn-light btn-sm game-action-btn game-action-btn--pause">
                             Pause Turns
                         </button>
 
-                        <button id="build-road-btn" type="button" class="btn btn-warning btn-sm">
+                        <button id="build-road-btn" type="button" class="btn btn-warning btn-sm game-action-btn game-action-btn--road" data-default-label="Build Road">
                             Build Road
                         </button>
 
-                        <button id="demolish-btn" type="button" class="btn btn-light btn-sm">
+                        <button id="demolish-btn" type="button" class="btn btn-light btn-sm game-action-btn game-action-btn--demolish" data-default-label="Demolish">
                             Demolish
                         </button>
 
-                        <button id="route-btn" type="button" class="btn btn-light btn-sm">
+                        <button id="route-btn" type="button" class="btn btn-light btn-sm game-action-btn game-action-btn--route" data-default-label="Route">
                             Route
                         </button>
                     </div>
 
                     <div id="build-menu">
-                        <button type="button" class="btn btn-light btn-sm" data-building="house" data-label="House">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="house" data-label="House" data-default-label="House">
                             House
                         </button>
 
-                        <button type="button" class="btn btn-light btn-sm" data-building="apartment" data-label="Apartment">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="apartment" data-label="Apartment" data-default-label="Apartment">
                             Apartment
                         </button>
 
-                        <button type="button" class="btn btn-light btn-sm" data-building="store" data-label="Store">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="store" data-label="Store" data-default-label="Store">
                             Store
                         </button>
 
-                        <button type="button" class="btn btn-light btn-sm" data-building="shopping-center" data-label="Shopping Center">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="shopping-center" data-label="Shopping Center" data-default-label="Shopping Center">
                             Shopping Center
                         </button>
 
-                        <button type="button" class="btn btn-light btn-sm" data-building="factory" data-label="Factory">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="factory" data-label="Factory" data-default-label="Factory">
                             Factory
                         </button>
 
-                        <button type="button" class="btn btn-light btn-sm" data-building="farm" data-label="Farm">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="farm" data-label="Farm" data-default-label="Farm">
                             Farm
                         </button>
 
-                        <button type="button" class="btn btn-light btn-sm" data-building="police-station" data-label="Police Station">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="police-station" data-label="Police Station" data-default-label="Police Station">
                             Police Station
                         </button>
 
-                        <button type="button" class="btn btn-light btn-sm" data-building="fire-station" data-label="Fire Station">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="fire-station" data-label="Fire Station" data-default-label="Fire Station">
                             Fire Station
                         </button>
 
-                        <button type="button" class="btn btn-light btn-sm" data-building="hospital" data-label="Hospital">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="hospital" data-label="Hospital" data-default-label="Hospital">
                             Hospital
                         </button>
 
-                        <button type="button" class="btn btn-light btn-sm" data-building="power-plant" data-label="Power Plant">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="power-plant" data-label="Power Plant" data-default-label="Power Plant">
                             Power Plant
                         </button>
 
-                        <button type="button" class="btn btn-light btn-sm" data-building="water-plant" data-label="Water Plant">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="water-plant" data-label="Water Plant" data-default-label="Water Plant">
                             Water Plant
                         </button>
 
-                        <button type="button" class="btn btn-light btn-sm" data-building="park" data-label="Park">
+                        <button type="button" class="btn btn-light btn-sm build-option-btn" data-building="park" data-label="Park" data-default-label="Park">
                             Park
                         </button>
 
-                        <button id="save-game-btn" type="button" class="btn btn-light btn-sm">
+                        <button id="save-game-btn" type="button" class="btn btn-light btn-sm utility-action-btn">
                             Save Game
                         </button>
 
-                        <button id="export-game-btn" type="button" class="btn btn-light btn-sm">
+                        <button id="export-game-btn" type="button" class="btn btn-light btn-sm utility-action-btn">
                             Export JSON
                         </button>
                     </div>
                 </div>
 
                 <div id="info-panel" class="info-panel d-none">
-                    <p>No cell selected.</p>
+                    <div class="info-panel-mobile-header">
+                        <span>Cell Info</span>
+                        <button id="close-info-panel-btn" type="button" class="btn btn-sm">
+                            Close
+                        </button>
+                    </div>
+
+                    <div id="info-panel-content" class="info-panel-content">
+                        <div class="info-empty-state">
+                            <p>No cell selected.</p>
+                        </div>
+                    </div>
                 </div>
 
             </div>

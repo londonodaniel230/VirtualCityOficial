@@ -4,31 +4,70 @@ export default class InfoPanelView {
     }
 
     showMessage(message) {
-        this._container.innerHTML = `<p>${message}</p>`;
+        this._container.innerHTML = `
+            <div class="info-empty-state">
+                <p>${message}</p>
+            </div>
+        `;
     }
 
     showRoadInfo(road) {
         this._container.innerHTML = `
-            <h3>Road</h3>
-            <p>Type: Road</p>
-            <p>Build Cost: $${road.cost}</p>
-            <p>Sell Value: $${Math.floor(road.cost * 0.5)}</p>
+            <h3 class="info-panel-title">Road</h3>
+            <div class="info-stat-list">
+                <div class="info-stat-row">
+                    <span>Type</span>
+                    <strong>Road</strong>
+                </div>
+                <div class="info-stat-row">
+                    <span>Build Cost</span>
+                    <strong>$${road.cost}</strong>
+                </div>
+                <div class="info-stat-row">
+                    <span>Sell Value</span>
+                    <strong>$${Math.floor(road.cost * 0.5)}</strong>
+                </div>
+            </div>
         `;
     }
 
     showBuildingInfo(building) {
         this._container.innerHTML = `
-            <h3>${building.name}</h3>
-            <p>Type: ${building.type}</p>
-            <p>Category: ${building.category}</p>
-            <p>Construction Cost: $${building.constructionCost}</p>
-            <p>Sell Value: $${building.getSellValue()}</p>
-            <p>Electricity Consumption: ${building.electricityConsumption}</p>
-            <p>Water Consumption: ${building.waterConsumption}</p>
+            <h3 class="info-panel-title">${building.name}</h3>
+            <div class="info-stat-list">
+                <div class="info-stat-row">
+                    <span>Type</span>
+                    <strong>${building.type}</strong>
+                </div>
+                <div class="info-stat-row">
+                    <span>Category</span>
+                    <strong>${building.category}</strong>
+                </div>
+                <div class="info-stat-row">
+                    <span>Construction Cost</span>
+                    <strong>$${building.constructionCost}</strong>
+                </div>
+                <div class="info-stat-row">
+                    <span>Sell Value</span>
+                    <strong>$${building.getSellValue()}</strong>
+                </div>
+                <div class="info-stat-row">
+                    <span>Electricity Consumption</span>
+                    <strong>${building.electricityConsumption}</strong>
+                </div>
+                <div class="info-stat-row">
+                    <span>Water Consumption</span>
+                    <strong>${building.waterConsumption}</strong>
+                </div>
+            </div>
         `;
     }
 
     clear() {
-        this._container.innerHTML = `<p>No cell selected.</p>`;
+        this._container.innerHTML = `
+            <div class="info-empty-state">
+                <p>No cell selected.</p>
+            </div>
+        `;
     }
 }

@@ -47,12 +47,14 @@ export default class GameController {
         this._buildRoadButton = document.getElementById("build-road-btn");
         this._demolishButton = document.getElementById("demolish-btn");
         this._infoPanel = document.getElementById("info-panel");
+        this._toggleInfoPanelButton = document.getElementById("toggle-info-panel-btn");
+        this._closeInfoPanelButton = document.getElementById("close-info-panel-btn");
         this._resourcePanel = document.getElementById("resource-panel");
         this._pauseTurnButton = document.getElementById("pause-turn-btn");
         this._turnTimerText = document.getElementById("turn-timer-text");
         this._citizenSystem = new CitizenSystem(3);
 
-        this._infoPanelView = new InfoPanelView("info-panel");
+        this._infoPanelView = new InfoPanelView("info-panel-content");
         this._gridView = new GridView("map-grid");
         this._buildMenuView = new BuildMenuView("build-menu");
         this._resourcePanelView = new ResourcePanelView("resource-panel");
@@ -199,6 +201,18 @@ export default class GameController {
             });
         }
 
+        if (this._toggleInfoPanelButton) {
+            this._toggleInfoPanelButton.addEventListener("click", () => {
+                this.toggleInfoPanel();
+            });
+        }
+
+        if (this._closeInfoPanelButton) {
+            this._closeInfoPanelButton.addEventListener("click", () => {
+                this.closeInfoPanel();
+            });
+        }
+
         if (this._showRankingButton) {
             this._showRankingButton.addEventListener("click", () => {
                 this.showSideSection("ranking-panel");
@@ -228,6 +242,10 @@ export default class GameController {
                 this._newGameButton.classList.remove("d-none");
             }
         }
+
+        window.addEventListener("resize", () => {
+            this.syncResponsiveInfoPanel();
+        });
     }
 
      /*
@@ -276,6 +294,11 @@ export default class GameController {
         this._infoPanel.classList.remove("d-none");
         this._resourcePanel.classList.remove("d-none");
 
+        if (this._toggleInfoPanelButton) {
+            this._toggleInfoPanelButton.classList.remove("d-none");
+        }
+
+        this.syncResponsiveInfoPanel();
         this.updateResourcePanel();
 
         this._turnSystem.start();
@@ -506,10 +529,23 @@ export default class GameController {
         const isSameDemolishMode = 
             mode === "demolish" && this._currentMode === "demolish";
 
+        const isSameRouteMode =
+            mode === "routeSelect" && this._currentMode === "routeSelect";
+
         // Si se pulsa el mismo botón otra vez, cancelar
-        if (isSameRoadMode || isSameBuildingMode || isSameDemolishMode) {
+        if (isSameRoadMode || isSameBuildingMode || isSameDemolishMode || isSameRouteMode) {
             this._currentMode = "select";
             this._selectedBuildingType = null;
+            this._routeOrigin = null;
+            this._routeDestination = null;
+
+            if (isSameRouteMode) {
+                this._routeCells = [];
+
+                if (this._city) {
+                    this.renderGrid();
+                }
+            }
 
             this.resetButtons();
 
@@ -529,6 +565,7 @@ export default class GameController {
         this.resetButtons();
 
         button.textContent = "Cancel";
+        button.dataset.state = "cancel";
         button.classList.remove("btn-warning", "btn-light");
         button.classList.add("btn-danger");
 
@@ -541,21 +578,15 @@ export default class GameController {
         allButtons.forEach((btn) => {
             btn.classList.remove("btn-danger", "btn-warning");
             btn.classList.add("btn-light");
+            btn.dataset.state = "idle";
 
-            if (btn.dataset.building) {
-                if (btn.dataset.label) {
-                    btn.textContent = btn.dataset.label;
-                } else {
-                    btn.textContent = btn.dataset.building;
-                }
-            } else if (btn.id === "build-road-btn") {
-                btn.textContent = "Build Road";
+            if (btn.dataset.defaultLabel) {
+                btn.textContent = btn.dataset.defaultLabel;
+            }
+
+            if (btn.id === "build-road-btn") {
                 btn.classList.remove("btn-light");
                 btn.classList.add("btn-warning");
-            } else if (btn.id === "demolish-btn"){
-                btn.textContent = "Demolish";
-            } else if (btn.id === "route-btn"){
-                btn.textContent = "Route";
             }
         });
     }
@@ -703,21 +734,7 @@ export default class GameController {
             return;
         }
 
-        this._city = City.fromJSON(savedData);
-
-        this._setupSection.classList.add("d-none");
-        this._mapSection.classList.remove("d-none");
-        this._infoBar.classList.remove("d-none");
-        this._infoPanel.classList.remove("d-none");
-        this._resourcePanel.classList.remove("d-none");
-
-        this.showCityInfo();
-        this.renderGrid();
-        this.updateResourcePanel();
-
-        this._turnSystem.reset();
-        this._turnSystem.start();
-
+        this.restoreGame(savedData);
         this._infoPanelView.showMessage("Saved game loaded successfully.");
     }
 
@@ -761,6 +778,12 @@ export default class GameController {
         this._infoBar.classList.remove("d-none");
         this._infoPanel.classList.remove("d-none");
         this._resourcePanel.classList.remove("d-none");
+
+        if (this._toggleInfoPanelButton) {
+            this._toggleInfoPanelButton.classList.remove("d-none");
+        }
+
+        this.syncResponsiveInfoPanel();
 
         // Renderizar todo
         this.showCityInfo();
@@ -811,6 +834,7 @@ export default class GameController {
 
                 this.restoreGame(savedData);
                 this._saveManager.saveGame(this._city.toJSON());
+                this._infoPanelView.showMessage("JSON save loaded successfully.");
             } catch (error) {
                 console.error(error);
                 alert("Could not load the JSON file.");
@@ -828,6 +852,7 @@ export default class GameController {
 
         location.reload();
 
+        this.closeInfoPanel();
         this.closeSidePanel();
 
         this.stopExternalDataRefresh();
@@ -919,9 +944,14 @@ export default class GameController {
 
     showSideSection(sectionId) {
         const sections = document.querySelectorAll(".side-panel-section");
+        const tabButtons = document.querySelectorAll(".side-tab-btn");
 
         sections.forEach((section) => {
             section.classList.add("d-none");
+        });
+
+        tabButtons.forEach((button) => {
+            button.classList.remove("is-active");
         });
 
         const activeSection = document.getElementById(sectionId);
@@ -929,6 +959,66 @@ export default class GameController {
         if (activeSection) {
             activeSection.classList.remove("d-none");
         }
+
+        const activeButton = document.querySelector(`.side-tab-btn[data-section="${sectionId}"]`);
+
+        if (activeButton) {
+            activeButton.classList.add("is-active");
+        }
+    }
+
+    isSmallMobileViewport() {
+        return window.matchMedia("(max-width: 480px)").matches;
+    }
+
+    updateInfoPanelToggleState() {
+        if (!this._toggleInfoPanelButton) {
+            return;
+        }
+
+        const isOpen = this._infoPanel && this._infoPanel.classList.contains("open");
+        this._toggleInfoPanelButton.textContent = isOpen ? "Hide Info" : "Info";
+        this._toggleInfoPanelButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    }
+
+    openInfoPanel() {
+        if (!this._infoPanel) {
+            return;
+        }
+
+        this._infoPanel.classList.add("open");
+        this.updateInfoPanelToggleState();
+    }
+
+    closeInfoPanel() {
+        if (!this._infoPanel) {
+            return;
+        }
+
+        this._infoPanel.classList.remove("open");
+        this.updateInfoPanelToggleState();
+    }
+
+    toggleInfoPanel() {
+        if (!this._infoPanel || !this.isSmallMobileViewport()) {
+            return;
+        }
+
+        this._infoPanel.classList.toggle("open");
+        this.updateInfoPanelToggleState();
+    }
+
+    syncResponsiveInfoPanel() {
+        if (!this._infoPanel || this._infoPanel.classList.contains("d-none")) {
+            return;
+        }
+
+        if (this.isSmallMobileViewport()) {
+            this.closeInfoPanel();
+            return;
+        }
+
+        this.openInfoPanel();
     }
 
     async loadWeather() {

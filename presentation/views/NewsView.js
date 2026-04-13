@@ -7,21 +7,21 @@ export default class NewsView {
 
         if (!newsItems || newsItems.length === 0) {
             this._container.innerHTML = `
-                <h3>News</h3>
-                <p>No news available.</p>
+                <h3 class="panel-heading">News</h3>
+                <p class="panel-empty-state">No news available.</p>
             `;
             return;
         }
 
         this._container.innerHTML = `
-            <h3>News</h3>
+            <h3 class="panel-heading">News</h3>
             <div class="news-list">
                 ${newsItems.map((item) => `
                     <article class="news-item">
                         ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image">` : ""}
                         <h4>${item.title}</h4>
                         <p>${item.description}</p>
-                        <a href="${item.url}" target="_blank" rel="noopener noreferrer">Read more</a>
+                        <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="news-link">Read more</a>
                     </article>
                 `).join("")}
             </div>
@@ -30,8 +30,8 @@ export default class NewsView {
 
     showError(message) {
         this._container.innerHTML = `
-            <h3>News</h3>
-            <p>${message}</p>
+            <h3 class="panel-heading">News</h3>
+            <p class="panel-empty-state">${message}</p>
         `;
     }
 }

@@ -10,14 +10,38 @@ export default class ResourcePanelView {
         const averageHappiness = city ? city.averageHappiness : 0;
 
         this._container.innerHTML = `
-            <div class="resource-item"><strong>Money:</strong> $${resources.money}</div>
-            <div class="resource-item"><strong>Electricity:</strong> ${resources.electricity}</div>
-            <div class="resource-item"><strong>Water:</strong> ${resources.water}</div>
-            <div class="resource-item"><strong>Food:</strong> ${resources.food}</div>
-            <div class="resource-item"><strong>Population:</strong> ${population}</div>
-            <div class="resource-item"><strong>Housed:</strong> ${housed}</div>
-            <div class="resource-item"><strong>Employed:</strong> ${employed}</div>
-            <div class="resource-item"><strong>Avg Happiness:</strong> ${averageHappiness.toFixed(2)}</div>
+            <div class="resource-item">
+                <span class="resource-label">Money</span>
+                <strong class="resource-value">$${resources.money}</strong>
+            </div>
+            <div class="resource-item">
+                <span class="resource-label">Electricity</span>
+                <strong class="resource-value">${resources.electricity}</strong>
+            </div>
+            <div class="resource-item">
+                <span class="resource-label">Water</span>
+                <strong class="resource-value">${resources.water}</strong>
+            </div>
+            <div class="resource-item">
+                <span class="resource-label">Food</span>
+                <strong class="resource-value">${resources.food}</strong>
+            </div>
+            <div class="resource-item">
+                <span class="resource-label">Population</span>
+                <strong class="resource-value">${population}</strong>
+            </div>
+            <div class="resource-item">
+                <span class="resource-label">Housed</span>
+                <strong class="resource-value">${housed}</strong>
+            </div>
+            <div class="resource-item">
+                <span class="resource-label">Employed</span>
+                <strong class="resource-value">${employed}</strong>
+            </div>
+            <div class="resource-item">
+                <span class="resource-label">Avg Happiness</span>
+                <strong class="resource-value">${averageHappiness.toFixed(2)}</strong>
+            </div>
         `;
     }
 }
