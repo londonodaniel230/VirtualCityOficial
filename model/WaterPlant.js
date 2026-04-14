@@ -1,6 +1,7 @@
 import UtilityPlant from "./UtilityPlant.js";
 
 export default class WaterPlant extends UtilityPlant {
+    // Crea una planta de agua con produccion fija por turno.
     constructor(id) {
         super(
             id,
@@ -14,11 +15,8 @@ export default class WaterPlant extends UtilityPlant {
         );
     }
 
+    // Devuelve el agua producida por la planta.
     getWaterProduction() {
         return this.productionAmount;
-    }
-
-    getWaterProduction() {
-        return 150;
     }
 }

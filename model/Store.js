@@ -1,6 +1,7 @@
 import CommercialBuilding from "./CommercialBuilding.js";
 
 export default class Store extends CommercialBuilding {
+    // Crea una tienda con empleos e ingresos basicos por turno.
     constructor(id) {
         super(
             id,
@@ -15,6 +16,7 @@ export default class Store extends CommercialBuilding {
         );
     }
 
+    // Devuelve el dinero que produce la tienda en cada turno.
     getMoneyProduction() {
         return 500;
     }

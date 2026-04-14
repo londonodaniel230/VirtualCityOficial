@@ -1,8 +1,10 @@
 export default class RankingView {
+    // Guarda el contenedor donde se mostrara el ranking.
     constructor(containerId) {
         this._container = document.getElementById(containerId);
     }
 
+    // Renderiza el top de ciudades o un mensaje si aun no hay datos.
     render(ranking) {
         if (!ranking || ranking.length === 0) {
             this._container.innerHTML = `

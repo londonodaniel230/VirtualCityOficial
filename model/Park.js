@@ -1,6 +1,7 @@
 import Building from "./Building.js";
 
 export default class Park extends Building {
+    // Crea un parque que aporta un bono simple de felicidad.
     constructor(id) {
         super(
             id,
@@ -24,7 +25,4 @@ export default class Park extends Building {
         this._happinessBonus = newHappinessBonus;
     }
 
-    applyHappinessEffect() {
-
-    }
 }

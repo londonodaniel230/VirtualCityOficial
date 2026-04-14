@@ -1,6 +1,7 @@
 import Building from "./Building.js";
 
 export default class CommercialBuilding extends Building {
+    // Crea un edificio comercial con puestos de trabajo e ingresos por turno.
     constructor(
         id,
         name,
@@ -52,6 +53,7 @@ export default class CommercialBuilding extends Building {
         this._incomePerTurn = newIncomePerTurn;
     }
 
+    // Agrega un trabajador si el edificio aun tiene vacantes.
     addWorker(citizen) {
         if (!this.hasJobVacancy()) {
             return false;
@@ -61,10 +63,12 @@ export default class CommercialBuilding extends Building {
         return true;
     }   
 
+    // Elimina un trabajador segun su identificador.
     removeWorker(citizenId) {
         this._workers = this._workers.filter((worker) => worker.id !== citizenId);
     }
 
+    // Indica si el edificio todavia tiene empleos disponibles.
     hasJobVacancy() {
         return this._workers.length < this._jobs;
     }

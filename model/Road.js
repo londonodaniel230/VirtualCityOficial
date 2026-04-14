@@ -1,5 +1,6 @@
 export default class Road {
 
+    // Crea una via con su tipo y costo de construccion base.
     constructor() {
         this._type = "road";
         this._cost = 100;

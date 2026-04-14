@@ -1,5 +1,6 @@
 export default class Cell {
 
+    // Representa una posicion del mapa y su contenido actual.
     constructor(x, y) {
         this._x = x;
         this._y = y;
@@ -35,14 +36,17 @@ export default class Cell {
 
     // ======= METHODS =======
 
+    // Indica si la celda no tiene ninguna construccion.
     isEmpty () {
         return this._content === null;
     }
 
+    // Elimina el contenido actual de la celda.
     removeContent () {
         this._content = null;
     }
 
+    // Asigna un edificio o via como contenido de la celda.
     setContent(content) {
         this._content = content;
     }

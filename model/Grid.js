@@ -2,6 +2,7 @@ import Cell from "./Cell.js";
 
 export default class Grid {
 
+    // Crea el grid con el ancho y alto configurados.
     constructor (width, height) {
         this._width = width;
         this._height = height;
@@ -38,6 +39,7 @@ export default class Grid {
 
     // ======= METHODS =======
 
+    // Genera todas las celdas vacias del mapa.
     initializeGrid () {
         this._cells = [];
 
@@ -52,6 +54,7 @@ export default class Grid {
         }
     }
 
+    // Devuelve la celda solicitada o null si esta fuera del mapa.
     getCell (x, y) {
         if (
             y < 0 || y >= this._height ||
@@ -63,6 +66,7 @@ export default class Grid {
         return this._cells[y][x];
     }
 
+    // Coloca un edificio en una celda vacia.
     placeBuilding (building, x, y) {
         const cell = this.getCell(x, y);
 
@@ -78,6 +82,7 @@ export default class Grid {
         return true;
     }
 
+    // Coloca una via en una celda vacia.
     placeRoad (road, x, y) {
         const cell = this.getCell(x, y);
 
@@ -93,6 +98,7 @@ export default class Grid {
         return true;
     }
 
+    // Elimina y devuelve el contenido de una celda ocupada.
     removeContent (x, y) {
         const cell = this.getCell(x, y);
 
@@ -110,6 +116,7 @@ export default class Grid {
         return removedContent;
     }
 
+    // Comprueba si la celda tiene una via en alguna posicion adyacente.
     hasAdjacentRoad(x, y) {
         const directions = [
             { dx: 0, dy: -1 },

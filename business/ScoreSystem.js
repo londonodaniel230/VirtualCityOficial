@@ -1,4 +1,5 @@
 export default class ScoreSystem {
+    // Calcula el puntaje total segun poblacion, recursos, edificios y felicidad.
     static calculate(city) {
         const buildings = city.getAllBuildings();
         const population = city.getPopulation();

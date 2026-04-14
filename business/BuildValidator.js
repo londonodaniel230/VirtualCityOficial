@@ -1,5 +1,6 @@
 export default class BuildValidator {
 
+    // Verifica si un edificio puede construirse en la celda indicada.
     static canBuildBuilding(grid, resources, building, x, y) {
         const cell = grid.getCell(x, y);
 

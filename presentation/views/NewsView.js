@@ -1,8 +1,10 @@
 export default class NewsView {
+    // Guarda el contenedor donde se mostraran las noticias.
     constructor(containerId) {
         this._container = document.getElementById(containerId);
     }
 
+    // Renderiza la lista de noticias o un mensaje vacio si no hay resultados.
     render(newsItems) {
 
         if (!newsItems || newsItems.length === 0) {
@@ -28,6 +30,7 @@ export default class NewsView {
         `;
     }
 
+    // Muestra un mensaje de error en el panel de noticias.
     showError(message) {
         this._container.innerHTML = `
             <h3 class="panel-heading">News</h3>

@@ -18,6 +18,7 @@ import ScoreSystem from "../business/ScoreSystem.js";
 
 export default class City {
 
+    // Crea la ciudad principal y prepara sus recursos, grid y estado inicial.
     constructor (name, mayor, region, latitude, longitude, mapWidth, mapHeight, grid, citizens) {
         this._name = name;
         this._mayor = mayor;
@@ -153,10 +154,7 @@ export default class City {
 
     // ======= METHODS =======
 
-    startGame () {
-
-    }
-
+    // Avanza un turno completo aplicando recursos, felicidad y puntaje.
     advanceTurn() {
         this._currentTurn += 1;
 
@@ -182,11 +180,13 @@ export default class City {
         };
     }
 
+    // Recalcula y guarda el puntaje actual de la ciudad.
     calculateScore() {
         this._score = ScoreSystem.calculate(this);
         return this._score;
     }
 
+    // Reune todos los edificios del mapa, excluyendo las vias.
     getAllBuildings() {
         const buildings = [];
 
@@ -203,11 +203,13 @@ export default class City {
         return buildings;
     }
 
+    // Actualiza los balances de produccion y consumo segun los edificios actuales.
     updateResourceBalances() {
         const buildings = this.getAllBuildings();
         this._resources.calculateBalances(buildings);
     }
 
+    // Calcula la felicidad base de la ciudad segun servicios y recursos disponibles.
     calculateBaseHappiness() {
         let totalHappiness = 50;
 
@@ -244,6 +246,7 @@ export default class City {
         return this._baseHappiness;
     }
     
+    // Calcula la felicidad promedio general o usa la base si no hay sistema de ciudadanos.
     updateAverageHappiness(citizenSystem = null) {
         if (!citizenSystem) {
             this._averageHappiness = this._baseHappiness;
@@ -254,10 +257,12 @@ export default class City {
         return this._averageHappiness;
     }
 
+    // Devuelve la cantidad total de ciudadanos de la ciudad.
     getPopulation() {
         return this._citizens.length;
     }
 
+    // Filtra los edificios residenciales que pueden alojar ciudadanos.
     getResidentialBuildings() {
         return this.getAllBuildings().filter((building) => 
             building.type === "house" || 
@@ -265,6 +270,7 @@ export default class City {
         );
     }
 
+    // Filtra los edificios que pueden ofrecer empleos.
     getJobBuildings() {
         return this.getAllBuildings().filter((building) => 
             building.type === "store" || 
@@ -274,6 +280,7 @@ export default class City {
         );
     }
 
+    // Convierte el contenido de una celda al formato serializable del guardado.
     serializeContent(content) {
         const base = {
             type: content.type
@@ -304,6 +311,7 @@ export default class City {
         };
     }
 
+    // Reconstruye un ciudadano a partir de datos guardados.
     static createCitizenFromData(data) {
         const citizen = new Citizen(data.id);
         citizen.happiness = data.happiness;
@@ -312,6 +320,7 @@ export default class City {
         return citizen;
     }
 
+    // Reconstruye el grid completo usando la informacion guardada.
     static createGridFromData(gridData, width, height) {
         const grid = new Grid(width, height);
         grid.initializeGrid();
@@ -330,6 +339,7 @@ export default class City {
         return grid;
     }
 
+    // Crea el objeto correcto segun el tipo guardado en el JSON.
     static createContentFromData(data) {
         switch (data.type) {
             case "road":
@@ -376,6 +386,7 @@ export default class City {
         }
     }
     
+    // Convierte la ciudad completa a un objeto listo para guardarse como JSON.
     toJSON() {
         return {
             name: this._name,
@@ -427,6 +438,7 @@ export default class City {
         };
     }
 
+    // Reconstruye una ciudad completa desde un objeto cargado del guardado.
     static fromJSON(data) {
         const city = new City(
             data.name,

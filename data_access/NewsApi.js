@@ -1,9 +1,11 @@
 export default class NewsApi {
+    // Guarda la llave y la URL base para consultar noticias.
     constructor(apiKey) {
         this._apiKey = apiKey;
         this._baseUrl = "https://newsapi.org/v2/top-headlines";
     }
 
+    // Obtiene los titulares principales de un pais y los normaliza para la vista.
     async getTopHeadlines(countryCode) {
         const url = `${this._baseUrl}?country=${countryCode}&pageSize=5`;
 
@@ -27,6 +29,7 @@ export default class NewsApi {
         }));
     }
 
+    // Busca noticias por texto libre cuando no hay titulares suficientes.
     async searchNews(query) {
         const url = `${this._baseUrl}?q=${encodeURIComponent(query)}&pageSize=5&apiKey=${this._apiKey}`;
 

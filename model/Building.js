@@ -1,5 +1,6 @@
 export default class Building {
 
+    // Crea la estructura base que comparten todos los edificios del juego.
     constructor (id, name, type, category, constructionCost, maintenanceCost, electricityConsumption, waterConsumption) {
         this._id = id;
         this._name = name;
@@ -81,26 +82,27 @@ export default class Building {
 
     // ======= METHODS =======
 
-    operate () {
-
-    }
-
+    // Devuelve el valor de venta del edificio como la mitad de su costo de construccion.
     getSellValue() {
         return Math.floor(this._constructionCost * 0.5);
     }
 
+    // Indica cuanta energia produce el edificio; por defecto no produce.
     getElectricityProduction() {
         return 0;
     }
 
+    // Indica cuanta agua produce el edificio; por defecto no produce.
     getWaterProduction() {
         return 0;
     }
 
+    // Indica cuanta comida produce el edificio; por defecto no produce.
     getFoodProduction() {
         return 0;
     }
 
+    // Indica cuanto dinero produce el edificio; por defecto no produce.
     getMoneyProduction() {
         return 0;
     }

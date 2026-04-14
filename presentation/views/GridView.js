@@ -1,19 +1,9 @@
-export default class GridView {
-
-    /*
-     * Constructor de la vista del grid.
-     * Guarda la referencia al contenedor del HTML donde se va a dibujar
-     * el mapa de la ciudad.
-     */
+﻿export default class GridView {
+    // Guarda el contenedor donde se dibujara el mapa.
     constructor(containerId) {
         this._container = document.getElementById(containerId);
     }
-
-     /*
-     * Renderiza el mapa en pantalla usando la información del grid.
-     * Crea dinámicamente cada celda del mapa y le asigna un evento
-     * para detectar cuando el usuario hace clic en ella.
-     */
+    // Dibuja todo el grid y marca visualmente el contenido de cada celda.
     render(grid, onCellClick, routeCells = []) {
         this._container.innerHTML = "";
         this._container.style.display = "grid";
@@ -75,13 +65,7 @@ export default class GridView {
             }
         }
     }
-    
-
-    /*
-     * Resalta visualmente la celda que el usuario seleccionó.
-     * Primero quita la selección anterior y luego aplica la
-     * clase CSS a la nueva celda seleccionada.
-     */
+    // Resalta la celda seleccionada y quita el resaltado anterior.
     highlightSelectedCell(x, y) {
         const previousSelected = this._container.querySelector(".selected-cell");
 
@@ -96,3 +80,4 @@ export default class GridView {
         }
     }
 }
+

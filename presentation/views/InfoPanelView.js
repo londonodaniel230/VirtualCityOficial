@@ -1,8 +1,10 @@
 export default class InfoPanelView {
+    // Guarda el contenedor del panel que muestra detalles de la celda.
     constructor(containerId) {
         this._container = document.getElementById(containerId);
     }
 
+    // Muestra un mensaje simple dentro del panel de informacion.
     showMessage(message) {
         this._container.innerHTML = `
             <div class="info-empty-state">
@@ -11,6 +13,7 @@ export default class InfoPanelView {
         `;
     }
 
+    // Muestra la informacion basica de una via seleccionada.
     showRoadInfo(road) {
         this._container.innerHTML = `
             <h3 class="info-panel-title">Road</h3>
@@ -31,6 +34,7 @@ export default class InfoPanelView {
         `;
     }
 
+    // Muestra la informacion principal del edificio seleccionado.
     showBuildingInfo(building) {
         this._container.innerHTML = `
             <h3 class="info-panel-title">${building.name}</h3>
@@ -63,6 +67,7 @@ export default class InfoPanelView {
         `;
     }
 
+    // Restablece el panel a su estado vacio por defecto.
     clear() {
         this._container.innerHTML = `
             <div class="info-empty-state">

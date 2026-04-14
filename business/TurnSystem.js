@@ -1,4 +1,5 @@
 export default class TurnSystem {
+    // Configura los callbacks y la duracion base entre turnos.
     constructor(onTurn, onTick = null, intervalMs = 5000) {
         this._onTurn = onTurn;
         this._onTick = onTick;
@@ -27,6 +28,7 @@ export default class TurnSystem {
         this._remainingMs = newIntervalMs;
     }
 
+    // Inicia el contador que ejecuta turnos automaticamente.
     start() {
         if (this._isRunning) {
             return;
@@ -53,6 +55,7 @@ export default class TurnSystem {
         }, 200);
     }
 
+    // Detiene el contador automatico sin reiniciar el tiempo restante.
     stop() {
         if (!this._isRunning) {
             return;
@@ -63,6 +66,7 @@ export default class TurnSystem {
         this._isRunning = false;
     }
 
+    // Reinicia el tiempo restante del turno y actualiza la vista del temporizador.
     reset() {
         this._remainingMs = this._intervalMs;
 
@@ -71,6 +75,7 @@ export default class TurnSystem {
         }
     }
 
+    // Ejecuta el callback asociado al avance de turno.
     executeTurn() {
         if (typeof this._onTurn === "function") {
             this._onTurn();

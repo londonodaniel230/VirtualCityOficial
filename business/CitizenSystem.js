@@ -1,6 +1,7 @@
 import Citizen from "../model/Citizen.js";
 
 export default class CitizenSystem {
+    // Inicializa el sistema que controla el crecimiento de ciudadanos por turno.
     constructor(growthPerTurn = 3) {
         this._growthPerTurn = growthPerTurn;
         this._nextCitizenId = 1;
@@ -14,6 +15,7 @@ export default class CitizenSystem {
         this._growthPerTurn = newGrowthPerTurn;
     }
 
+    // Crea nuevos ciudadanos solo si hay vivienda, empleo y felicidad suficiente.
     createCitizens(city) {
         const availableHousing = this.countAvailableHousing(city);
         const availableJobs = this.countAvailableJobs(city);
@@ -47,6 +49,7 @@ export default class CitizenSystem {
         return newCitizens;
     }
 
+    // Asigna cada ciudadano nuevo a la primera vivienda con espacio disponible.
     assignHousing(city, citizens) {
         const residentialBuildings = city.getResidentialBuildings();
 
@@ -64,6 +67,7 @@ export default class CitizenSystem {
         }
     }
 
+    // Asigna cada ciudadano nuevo al primer trabajo con vacantes disponibles.
     assignJobs(city, citizens) {
         const jobBuildings = city.getJobBuildings();
 
@@ -81,6 +85,7 @@ export default class CitizenSystem {
         }
     }
 
+    // Calcula la felicidad promedio usando la felicidad individual de cada ciudadano.
     calculateAverageHappiness(city) {
         const citizens = city.citizens;
 
@@ -97,6 +102,7 @@ export default class CitizenSystem {
         return totalHappiness / citizens.length;
     }
 
+    // Cuenta cuantos espacios de vivienda siguen libres en la ciudad.
     countAvailableHousing(city) {
         let total = 0;
 
@@ -109,6 +115,7 @@ export default class CitizenSystem {
         return total;
     }
 
+    // Cuenta cuantas vacantes laborales siguen libres en la ciudad.
     countAvailableJobs(city) {
         let total = 0;
 

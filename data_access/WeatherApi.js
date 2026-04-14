@@ -1,9 +1,11 @@
 export default class WeatherApi {
+    // Guarda la llave y la URL base para consultar el clima.
     constructor(apiKey) {
         this._apiKey = apiKey;
         this._baseUrl = "https://api.openweathermap.org/data/2.5/weather";
     }
 
+    // Obtiene el clima actual de unas coordenadas y lo adapta para la interfaz.
     async getWeather(lat, lon) {
         const url = `${this._baseUrl}?lat=${lat}&lon=${lon}&appid=${this._apiKey}&units=metric&lang=en`;
 

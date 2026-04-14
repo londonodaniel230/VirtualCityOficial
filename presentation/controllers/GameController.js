@@ -1,4 +1,4 @@
-import City from "../../model/City.js";
+﻿import City from "../../model/City.js";
 import Grid from "../../model/Grid.js";
 import Road from "../../model/Road.js";
 import House from "../../model/House.js";
@@ -31,13 +31,7 @@ import WeatherView from "../views/WeatherView.js";
 import NewsView from "../views/NewsView.js";
 
 export default class GameController {
-
-    /*
-     * Constructor del controlador principal del juego.
-     * Aquí se guardan las referencias a los elementos del HTML que se van a usar
-     * (formulario, secciones, barra de información) y se crea la vista del mapa.
-     * También se inicializan variables para guardar la ciudad creada y la celda seleccionada.
-     */
+    // Prepara referencias del DOM, vistas, APIs y estado principal del juego.
     constructor() {
         this._form = document.getElementById("city-form");
         this._setupSection = document.getElementById("setup-section");
@@ -114,12 +108,7 @@ export default class GameController {
         );
     }
 
-    /*
-     * Inicializa el controlador.
-     * Se encarga de escuchar cuando el usuario envía el formulario para
-     * crear la ciudad y llama al método que la genera.
-     */
-
+    // Registra eventos de la interfaz y recupera opciones de partida guardada.
     init() {
 
         this._form.addEventListener("submit", (event) => {
@@ -247,12 +236,7 @@ export default class GameController {
             this.syncResponsiveInfoPanel();
         });
     }
-
-     /*
-     * Crea la ciudad con los datos ingresados en el formulario.
-     * También genera el grid del mapa, oculta el formulario inicial,
-     * muestra la información de la ciudad y renderiza el mapa en pantalla.
-     */
+    // Crea una ciudad nueva desde el formulario y activa toda la interfaz del juego.
     createCity() {
         const cityName = document.getElementById("cityName").value.trim();
         const mayorName = document.getElementById("mayorName").value.trim();
@@ -317,20 +301,13 @@ export default class GameController {
 
         this.startExternalDataRefresh();
     }
-
-    /*
-     * Renderiza el grid de la ciudad.
-     */
+    // Redibuja el mapa completo con el estado actual del grid.
     renderGrid() {
         this._gridView.render(this._city.grid, (x, y) => {
             this.handleCellClick(x, y);
         }, this._routeCells);
     }
-
-    /*
-     * Decide qué hacer cuando el usuario hace clic en una celda
-     * dependiendo del modo actual del juego.
-     */
+    // Decide que accion ejecutar segun el modo actual al hacer clic en una celda.
     handleCellClick(x, y) {
 
         if (this._currentMode === "buildRoad") {
@@ -356,11 +333,7 @@ export default class GameController {
         this.selectCell(x, y);
         this.showBuildingInfo(x, y);
     }
-
-    /*
-     * Construye una vía si la celda está vacía
-     * y si hay dinero suficiente.
-     */
+    // Construye una via si la celda esta libre y hay dinero disponible.
     buildRoad(x, y) {
 
         const grid = this._city.grid;
@@ -408,6 +381,7 @@ export default class GameController {
         console.log(`Road built at (${x}, ${y})`);
     }
 
+    // Crea la instancia del edificio segun el tipo seleccionado en la interfaz.
     createBuildingByType(buildingType) {
         switch (buildingType) {
             case "house":
@@ -451,6 +425,7 @@ export default class GameController {
         }
     }
 
+    // Construye un edificio validando posicion, carretera adyacente y costo.
     buildBuilding(x, y) {
         const grid = this._city.grid;
         const resources = this._city.resources;
@@ -494,20 +469,12 @@ export default class GameController {
 
         console.log(`${building.name} built at (${x}, ${y})`);
     }
-
-    /*
-     * Muestra en la barra superior la información básica de la ciudad
-     * como nombre, alcalde, región, tamaño del mapa y dinero.
-     */
+    // Actualiza la barra superior con el estado general de la ciudad.
     showCityInfo() {
         this._infoText.textContent =
         `City: ${this._city.name} | Mayor: ${this._city.mayor} | Region: ${this._city.region} | Size: ${this._city.mapWidth} x ${this._city.mapHeight} | Turn: ${this._city.currentTurn} | Score: ${this._city.score} `;
     }
-
-    /*
-     * Se ejecuta cuando el usuario hace clic en una celda del mapa.
-     * Guarda la posición seleccionada y la resalta visualmente.
-     */
+    // Guarda la celda seleccionada y la resalta en el mapa.
     selectCell(x, y) {
         this._selectedCell = { x, y };
 
@@ -516,6 +483,7 @@ export default class GameController {
         console.log("Selected cell:", this._selectedCell);
     }
 
+    // Cambia el modo actual de interaccion y actualiza el estado visual de los botones.
     setMode(mode, button, extraData = null) {
 
         const isSameRoadMode =
@@ -532,7 +500,7 @@ export default class GameController {
         const isSameRouteMode =
             mode === "routeSelect" && this._currentMode === "routeSelect";
 
-        // Si se pulsa el mismo botón otra vez, cancelar
+        // Si se pulsa el mismo botÃ³n otra vez, cancelar
         if (isSameRoadMode || isSameBuildingMode || isSameDemolishMode || isSameRouteMode) {
             this._currentMode = "select";
             this._selectedBuildingType = null;
@@ -572,6 +540,7 @@ export default class GameController {
         console.log(`Mode activated: ${mode}`, extraData);
     }
 
+    // Restablece todos los botones de accion a su apariencia normal.
     resetButtons() {
         const allButtons = document.querySelectorAll("#build-road-btn, #build-menu button, #demolish-btn, #route-btn");
 
@@ -591,6 +560,7 @@ export default class GameController {
         });
     }
 
+    // Muestra en el panel lateral la informacion de la celda seleccionada.
     showBuildingInfo(x, y) {
         const grid = this._city.grid;
         const cell = grid.getCell(x, y);
@@ -610,6 +580,7 @@ export default class GameController {
         this._infoPanelView.showBuildingInfo(content);
     }
 
+    // Demuele el contenido de una celda y devuelve parte del costo al jugador.
     demolishSelectedCell(x, y) {
         const grid = this._city.grid;
         const resources = this._city.resources;
@@ -650,10 +621,12 @@ export default class GameController {
         console.log(`Content demolished at (${x}, ${y}). Refund: $${refund}`);
     }
 
+    // Refresca el panel de recursos con los datos actuales de la ciudad.
     updateResourcePanel() {
         this._resourcePanelView.render(this._city.resources, this._city);
     }
 
+    // Ejecuta el flujo completo de un turno automatico del juego.
     executeTurn() {
         if (!this._city) {
             return;
@@ -693,6 +666,7 @@ export default class GameController {
         console.log(`Turn ${turnResult.currentTurn} executed`);
     }
 
+    // Pausa o reanuda la ejecucion automatica de turnos.
     toggleTurnSystem() {
         if (this._turnSystem.isRunning) {
             this._turnSystem.stop();
@@ -711,12 +685,14 @@ export default class GameController {
         }
     }
 
+    // Actualiza el texto del contador que indica cuando sera el siguiente turno.
     updateTurnTimer(remainingSeconds) {
         if (this._turnTimerText) {
             this._turnTimerText.textContent = `Next Turn In: ${remainingSeconds}s`;
         }
     }
 
+    // Guarda la partida actual en el almacenamiento local.
     saveCurrentGame() {
         if (!this._city) {
             return;
@@ -726,6 +702,7 @@ export default class GameController {
         this._infoPanelView.showMessage("Game saved successfully.");
     }
 
+    // Carga la partida almacenada en localStorage y restaura la interfaz.
     loadSavedGame() {
         const savedData = this._saveManager.loadGame();
 
@@ -738,6 +715,7 @@ export default class GameController {
         this._infoPanelView.showMessage("Saved game loaded successfully.");
     }
 
+    // Exporta la partida actual a un archivo JSON descargable.
     exportCurrentGame() {
         if (!this._city) {
             return;
@@ -747,6 +725,7 @@ export default class GameController {
         this._infoPanelView.showMessage("Game exported to JSON.");
     }
 
+    // Inicia el guardado automatico periodico mientras exista una ciudad activa.
     startAutoSave() {
         this.stopAutoSave();
 
@@ -758,6 +737,7 @@ export default class GameController {
         }, 30000);
     }
 
+    // Detiene el intervalo de guardado automatico si estaba activo.
     stopAutoSave() {
         if (this._autoSaveIntervalId) {
             clearInterval(this._autoSaveIntervalId);
@@ -765,6 +745,7 @@ export default class GameController {
         }
     }
 
+    // Reconstruye una partida guardada y vuelve a mostrar todas las vistas del juego.
     restoreGame(savedData) {
         if (!savedData) {
             return;
@@ -812,6 +793,7 @@ export default class GameController {
         this.startExternalDataRefresh();
     }
 
+    // Lee un archivo JSON seleccionado por el usuario y restaura la partida.
     loadGameFromJsonFile() {
         const file = this._importJsonFile.files[0];
 
@@ -844,6 +826,7 @@ export default class GameController {
         reader.readAsText(file);
     }
 
+    // Limpia el guardado actual y reinicia la aplicacion desde cero.
     startNewGame() {
         this._saveManager.clearSave();
 
@@ -858,6 +841,7 @@ export default class GameController {
         this.stopExternalDataRefresh();
     }
 
+    // Usa dos vias seleccionadas para pedir al backend la mejor ruta entre ellas.
     async handleRouteSelection(x, y) {
         const grid = this._city.grid;
         const cell = grid.getCell(x, y);
@@ -906,11 +890,13 @@ export default class GameController {
         }
     }
 
+    // Carga el ranking guardado y lo muestra en el panel lateral.
     updateRanking() {
         const ranking = this._rankingRepository.loadRanking();
         this._rankingView.render(ranking);
     }
 
+    // Guarda el puntaje actual de la ciudad dentro del ranking persistente.
     saveCurrentScoreToRanking() {
         if (!this._city) {
             return;
@@ -924,6 +910,7 @@ export default class GameController {
         this.updateRanking();
     }
 
+    // Abre o cierra el panel lateral principal.
     toggleSidePanel() {
         if (!this._sidePanel) {
             return;
@@ -933,6 +920,7 @@ export default class GameController {
         this._sidePanel.classList.toggle("closed");
     }
 
+    // Cierra el panel lateral principal.
     closeSidePanel() {
         if (!this._sidePanel) {
             return;
@@ -942,6 +930,7 @@ export default class GameController {
         this._sidePanel.classList.add("closed");
     }
 
+    // Muestra una seccion del panel lateral y oculta las demas.
     showSideSection(sectionId) {
         const sections = document.querySelectorAll(".side-panel-section");
         const tabButtons = document.querySelectorAll(".side-tab-btn");
@@ -967,10 +956,12 @@ export default class GameController {
         }
     }
 
+    // Indica si la interfaz esta en un viewport pequeno de celular.
     isSmallMobileViewport() {
         return window.matchMedia("(max-width: 480px)").matches;
     }
 
+    // Ajusta el texto y estado del boton que controla el panel de informacion.
     updateInfoPanelToggleState() {
         if (!this._toggleInfoPanelButton) {
             return;
@@ -981,6 +972,7 @@ export default class GameController {
         this._toggleInfoPanelButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
     }
 
+    // Abre el panel de informacion en pantalla.
     openInfoPanel() {
         if (!this._infoPanel) {
             return;
@@ -990,6 +982,7 @@ export default class GameController {
         this.updateInfoPanelToggleState();
     }
 
+    // Cierra el panel de informacion en pantalla.
     closeInfoPanel() {
         if (!this._infoPanel) {
             return;
@@ -999,6 +992,7 @@ export default class GameController {
         this.updateInfoPanelToggleState();
     }
 
+    // Alterna la apertura del panel de informacion en moviles.
     toggleInfoPanel() {
         if (!this._infoPanel || !this.isSmallMobileViewport()) {
             return;
@@ -1008,6 +1002,7 @@ export default class GameController {
         this.updateInfoPanelToggleState();
     }
 
+    // Sincroniza el panel de informacion segun el tamano actual de pantalla.
     syncResponsiveInfoPanel() {
         if (!this._infoPanel || this._infoPanel.classList.contains("d-none")) {
             return;
@@ -1021,6 +1016,7 @@ export default class GameController {
         this.openInfoPanel();
     }
 
+    // Consulta el clima actual de la region de la ciudad y lo muestra.
     async loadWeather() {
         if (!this._city) {
             return;
@@ -1039,6 +1035,7 @@ export default class GameController {
         }
     }
 
+    // Consulta noticias de la region actual y usa alternativas si no hay resultados.
     async loadNews() {
         if (!this._city) {
             return;
@@ -1063,6 +1060,7 @@ export default class GameController {
         }
     }
 
+    // Convierte el nombre de una region en el codigo de pais usado por NewsAPI.
     getCountryCodeFromRegion(region) {
         const normalized = region.trim().toLowerCase();
 
@@ -1097,6 +1095,7 @@ export default class GameController {
         return regionMap[normalized] || "us";
     }
 
+    // Inicia la carga periodica de clima y noticias externas.
     startExternalDataRefresh() {
         this.stopExternalDataRefresh();
 
@@ -1112,6 +1111,7 @@ export default class GameController {
         }, 1800000);
     }
 
+    // Detiene los intervalos de actualizacion de clima y noticias.
     stopExternalDataRefresh() {
         if (this._weatherRefreshIntervalId) {
             clearInterval(this._weatherRefreshIntervalId);
@@ -1124,6 +1124,7 @@ export default class GameController {
         }
     }
 
+    // Devuelve coordenadas aproximadas para la region escrita por el usuario.
     getCoordinatesByRegion(region) {
         const normalizedRegion = region.trim().toLowerCase();
 
@@ -1158,3 +1159,4 @@ export default class GameController {
         return regionCoordinates[normalizedRegion] || { lat: 4.5709, lon: -74.2973 };
     }
 }
+

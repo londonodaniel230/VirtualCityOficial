@@ -1,6 +1,7 @@
 import Building from "./Building.js";
 
 export default class ServiceBuilding extends Building {
+    // Crea un edificio de servicio con radio de efecto y bono de felicidad.
     constructor(
         id,
         name,
@@ -43,7 +44,4 @@ export default class ServiceBuilding extends Building {
         this._happinessBonus = newHappinessBonus;
     }
 
-    applyServiceEffect() {
-
-    }
 }

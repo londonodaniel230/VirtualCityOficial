@@ -1,6 +1,7 @@
 import Building from "./Building.js";
 
 export default class ResidentialBuilding extends Building {
+    // Crea un edificio residencial con capacidad para alojar ciudadanos.
     constructor(
         id,
         name,
@@ -42,6 +43,7 @@ export default class ResidentialBuilding extends Building {
         this._residents = newResidents;
     }
 
+    // Agrega un residente si aun queda espacio disponible.
     addResident(citizen) {
         if (!this.hasAvailableSpace()) {
             return false;
@@ -51,10 +53,12 @@ export default class ResidentialBuilding extends Building {
         return true;
     }
 
+    // Elimina un residente segun su identificador.
     removeResident(citizenId) {
         this._residents = this._residents.filter((resident) => resident.id !== citizenId);
     }
 
+    // Indica si el edificio todavia puede recibir mas residentes.
     hasAvailableSpace() {
         return this._residents.length < this._capacity;
     }

@@ -1,6 +1,7 @@
 import Building from "./Building.js";
 
 export default class IndustrialBuilding extends Building {
+    // Crea un edificio industrial con vacantes y tipo de produccion.
     constructor(
         id,
         name,
@@ -52,6 +53,7 @@ export default class IndustrialBuilding extends Building {
         this._production = newProduction;
     }
 
+    // Agrega un trabajador si el edificio aun tiene vacantes.
     addWorker(citizen) {
         if (!this.hasJobVacancy()) {
             return false;
@@ -61,15 +63,13 @@ export default class IndustrialBuilding extends Building {
         return true;
     }
 
+    // Elimina un trabajador segun su identificador.
     removeWorker(citizenId) {
         this._workers = this._workers.filter((worker) => worker.id !== citizenId);
     }
 
+    // Indica si el edificio todavia tiene empleos disponibles.
     hasJobVacancy() {
         return this._workers.length < this._jobs;
-    }
-
-    produceResources() {
-
     }
 }

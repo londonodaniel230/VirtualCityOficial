@@ -1,8 +1,10 @@
 export default class ResourcePanelView {
+    // Guarda el contenedor del panel de recursos de la ciudad.
     constructor(containerId) {
         this._container = document.getElementById(containerId);
     }
 
+    // Muestra recursos, poblacion y estado general de la ciudad.
     render(resources, city = null) {
         const population = city ? city.getPopulation() : 0;
         const housed = city ? city.citizens.filter((citizen) => citizen.hasHouse).length : 0;

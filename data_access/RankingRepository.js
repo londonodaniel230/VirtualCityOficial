@@ -1,8 +1,10 @@
 export default class RankingRepository {
+    // Define la clave donde se almacenara el ranking en el navegador.
     constructor(storageKey = "city-builder-ranking") {
         this._storageKey = storageKey;
     }
 
+    // Carga el ranking guardado o devuelve una lista vacia si no existe.
     loadRanking() {
         const data = localStorage.getItem(this._storageKey);
 
@@ -13,10 +15,12 @@ export default class RankingRepository {
         return JSON.parse(data);
     }
 
+    // Guarda el ranking completo en localStorage.
     saveRanking(ranking) {
         localStorage.setItem(this._storageKey, JSON.stringify(ranking, null, 2));
     }
 
+    // Agrega o actualiza una ciudad en el ranking y conserva solo el top 10.
     addScore(entry) {
         const ranking = this.loadRanking();
 
@@ -40,6 +44,7 @@ export default class RankingRepository {
         return top10;
     }
 
+    // Borra el ranking almacenado en el navegador.
     clearRanking() {
         localStorage.removeItem(this._storageKey);
     }

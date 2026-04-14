@@ -1,6 +1,7 @@
 import Building from "./Building.js";
 
 export default class UtilityPlant extends Building {
+    // Crea una planta de servicio publico con una cantidad fija de produccion.
     constructor(
         id,
         name,
@@ -33,7 +34,4 @@ export default class UtilityPlant extends Building {
         this._productionAmount = newProductionAmount;
     }
 
-    produceUtility() {
-
-    }
 }

@@ -1,4 +1,5 @@
 export default class Resources {
+    // Guarda los recursos actuales y sus balances por turno.
     constructor(
         initialMoney = 100000,
         initialElectricity = 0,
@@ -64,10 +65,12 @@ export default class Resources {
         this._food = newFood;
     }
 
+    // Indica si la ciudad tiene dinero suficiente para pagar un costo.
     canAfford(cost) {
         return this._money >= cost;
     }
 
+    // Resta dinero si alcanza y devuelve si el pago fue exitoso.
     spendMoney(cost) {
         if (!this.canAfford(cost)) {
             return false;
@@ -77,22 +80,27 @@ export default class Resources {
         return true;
     }
 
+    // Suma dinero al total disponible.
     addMoney(amount) {
         this._money += amount;
     }
 
+    // Suma energia al total disponible.
     addElectricity(amount) {
         this._electricity += amount;
     }
 
+    // Suma agua al total disponible.
     addWater(amount) {
         this._water += amount;
     }
 
+    // Suma comida al total disponible.
     addFood(amount) {
         this._food += amount;
     }
 
+    // Calcula el balance neto de produccion y consumo sin avanzar el turno.
     calculateBalances(buildings) {
         let producedMoney = 0;
         let producedElectricity = 0;
@@ -133,6 +141,7 @@ export default class Resources {
         this._foodBalance = producedFood;
     }
 
+    // Aplica la produccion, consumo y mantenimiento de todos los edificios en un turno.
     applyTurn(buildings) {
         let totalMaintenance = 0;
 
